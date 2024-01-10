@@ -39,29 +39,7 @@ final class BoolQueryTests: XCTestCase {
     func testBuild() throws {
         @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
             BoolQuery {
-                DictQuery("match_bool_prefix") {
-                    [
-                        "message": "quick brown f"
-                    ]
-                }
-            }
-        }
-        XCTAssertNoDifference(build().makeQuery(), [
-            "query": [
-                "bool": [
-                    "match_bool_prefix": [
-                        "message": "quick brown f"
-                    ]
-                ]
-            ]
-        ])
-    }
-}
-
-final class ShouldQueryTests: XCTestCase {
-    func testBuild() throws {
-        @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
-            BoolQuery {
+                MinimumShouldMatchQuery(1)
                 ShouldQuery {
                     DictQuery("match_bool_prefix") {
                         [
@@ -69,28 +47,6 @@ final class ShouldQueryTests: XCTestCase {
                         ]
                     }
                 }
-            }
-        }
-        XCTAssertNoDifference(build().makeQuery(), [
-            "query": [
-                "bool": [
-                    "should": [
-                        [
-                            "match_bool_prefix": [
-                                "message": "quick brown f"
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ])
-    }
-}
-
-final class MustQueryTests: XCTestCase {
-    func testBuild() throws {
-        @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
-            BoolQuery {
                 MustQuery {
                     DictQuery("match_bool_prefix") {
                         [
@@ -98,29 +54,14 @@ final class MustQueryTests: XCTestCase {
                         ]
                     }
                 }
-            }
-        }
-        XCTAssertNoDifference(build().makeQuery(), [
-            "query": [
-                "bool": [
-                    "must": [
-                        [
-                            "match_bool_prefix": [
-                                "message": "quick brown f"
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ])
-    }
-}
-
-final class MustNotQueryTests: XCTestCase {
-    func testBuild() throws {
-        @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
-            BoolQuery {
                 MustNotQuery {
+                    DictQuery("match_bool_prefix") {
+                        [
+                            "message": "quick brown f"
+                        ]
+                    }
+                }
+                FilterQuery {
                     DictQuery("match_bool_prefix") {
                         [
                             "message": "quick brown f"
@@ -132,7 +73,29 @@ final class MustNotQueryTests: XCTestCase {
         XCTAssertNoDifference(build().makeQuery(), [
             "query": [
                 "bool": [
+                    "minimum_should_match": 1,
+                    "should": [
+                        [
+                            "match_bool_prefix": [
+                                "message": "quick brown f"
+                            ]
+                        ]
+                    ],
+                    "must": [
+                        [
+                            "match_bool_prefix": [
+                                "message": "quick brown f"
+                            ]
+                        ]
+                    ],
                     "must_not": [
+                        [
+                            "match_bool_prefix": [
+                                "message": "quick brown f"
+                            ]
+                        ]
+                    ],
+                    "filter": [
                         [
                             "match_bool_prefix": [
                                 "message": "quick brown f"
@@ -174,23 +137,58 @@ final class FilterQueryTests: XCTestCase {
     }
 }
 
-final class MinimumShouldMatchQueryTests: XCTestCase {
+final class FunctionScoreQueryTests: XCTestCase {
     func testBuild() throws {
         @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
-            BoolQuery {
-                MinimumShouldMatchQuery(10)
+            FunctionScoreQuery() {
+                BoolQuery {
+                    ShouldQuery {
+                        DictQuery("match_bool_prefix") {
+                            [
+                                "message": "quick brown f"
+                            ]
+                        }
+                    }
+                }
+                BoostQuery(3.2)
+                BoostModeQuery(.sum)
+                ScoreModeQuery(.avg)
+                FunctionsListQuery {
+                    FunctionQuery {
+                        [
+                            "filter": [ "match": [ "test": "cat" ] ],
+                            "weight": 42
+                        ]
+                    }
+                }
             }
         }
         XCTAssertNoDifference(build().makeQuery(), [
             "query": [
-                "bool": [
-                    "minimum_should_match": 10
+                "function_score": [
+                    "bool": [
+                        "should": [
+                            [
+                                "match_bool_prefix": [
+                                    "message": "quick brown f"
+                                ]
+                            ]
+                        ]
+                    ],
+                    "boost": 3.2,
+                    "boost_mode": "sum",
+                    "score_mode": "avg",
+                    "functions": [
+                        [
+                            "filter": [ "match": [ "test": "cat" ] ],
+                            "weight": 42
+                        ]
+                    ]
                 ]
             ]
         ])
     }
 }
-
 
 final class PaginationQueryTests: XCTestCase {
     func testBuildNone() throws {

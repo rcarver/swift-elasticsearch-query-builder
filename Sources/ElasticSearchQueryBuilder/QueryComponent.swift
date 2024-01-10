@@ -104,6 +104,92 @@ public struct MustNotQuery<Component: QueryComponent>: QueryComponent where Comp
     }
 }
 
+public struct FunctionScoreQuery<Component: QueryComponent>: QueryComponent where Component.Value == QueryDict {
+    var component: Component
+    public init(@QueryDictBuilder component: () -> Component) {
+        self.component = component()
+    }
+    public func makeValue() -> QueryDict {
+        [ "function_score" : .dict(self.component.makeValue()) ]
+    }
+}
+
+public struct FunctionsListQuery<Component: QueryComponent>: QueryComponent where Component.Value == [QueryDict] {
+    var component: Component
+    public init(@QueryArrayBuilder component: () -> Component) {
+        self.component = component()
+    }
+    public func makeValue() -> QueryDict {
+        [ "functions" : .array(self.component.makeValue().map(QueryValue.dict)) ]
+    }
+}
+
+public struct FunctionQuery: QueryComponent {
+    var function: QueryDict
+    public init(function: () -> QueryDict) {
+        self.function = function()
+    }
+    public func makeValue() -> QueryDict {
+        self.function
+    }
+}
+
+public struct BoostQuery: QueryComponent {
+    let boost: Float
+    public init(_ boost: Float) {
+        self.boost = boost
+    }
+    public func makeValue() -> QueryDict {
+        [ "boost": .float(self.boost) ]
+    }
+}
+
+public struct BoostMode: RawRepresentable, Equatable {
+    public var rawValue: String
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
+    public static let multiply = Self(rawValue: "multiply")
+    public static let replace = Self(rawValue: "replace")
+    public static let sum = Self(rawValue: "sum")
+    public static let avg = Self(rawValue: "avg")
+    public static let max = Self(rawValue: "max")
+    public static let min = Self(rawValue: "min")
+}
+
+public struct BoostModeQuery: QueryComponent {
+    let mode: BoostMode
+    public init(_ mode: BoostMode) {
+        self.mode = mode
+    }
+    public func makeValue() -> QueryDict {
+        [ "boost_mode": .string(self.mode.rawValue) ]
+    }
+}
+
+public struct ScoreMode: RawRepresentable, Equatable {
+    public var rawValue: String
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
+    public static let multiply = Self(rawValue: "multiply")
+    public static let sum = Self(rawValue: "sum")
+    public static let avg = Self(rawValue: "avg")
+    public static let first = Self(rawValue: "first")
+    public static let max = Self(rawValue: "max")
+    public static let min = Self(rawValue: "min")
+}
+
+public struct ScoreModeQuery: QueryComponent {
+    let mode: ScoreMode
+    public init(_ mode: ScoreMode) {
+        self.mode = mode
+    }
+    public func makeValue() -> QueryDict {
+        [ "score_mode": .string(self.mode.rawValue) ]
+    }
+}
+
 public struct PaginationQuery: QueryComponent {
     var first: Int?
     var size: Int?
