@@ -191,16 +191,16 @@ public struct ScoreModeQuery: QueryComponent {
 }
 
 public struct PaginationQuery: QueryComponent {
-    var first: Int?
+    var from: Int?
     var size: Int?
-    public init(first: Int? = nil, size: Int? = nil) {
-        self.first = first
+    public init(from: Int? = nil, size: Int? = nil) {
+        self.from = from
         self.size = size
     }
     public func makeValue() -> QueryDict {
         var dict = QueryDict()
-        if let first = self.first {
-            dict["first"] = .int(first)
+        if let from = self.from {
+            dict["from"] = .int(from)
         }
         if let size = self.size {
             dict["size"] = .int(size)

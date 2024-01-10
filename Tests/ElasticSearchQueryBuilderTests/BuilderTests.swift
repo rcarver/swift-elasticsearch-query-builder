@@ -6,24 +6,24 @@ import XCTest
 final class DictQueryBuilderTests: XCTestCase {
     func testBuild1() throws {
         @ElasticSearchQueryBuilder func build(tags: [String]?) -> some ElasticSearchQuery {
-            PaginationQuery(first: 10)
+            PaginationQuery(from: 10)
         }
         let query = build(tags: nil)
         XCTAssertNoDifference(query.makeQuery(), [
             "query": [
-                "first": 10
+                "from": 10
             ]
         ])
     }
     func testBuild2() throws {
         @ElasticSearchQueryBuilder func build(tags: [String]?) -> some ElasticSearchQuery {
-            PaginationQuery(first: 10)
+            PaginationQuery(from: 10)
             PaginationQuery(size: 20)
         }
         let query = build(tags: nil)
         XCTAssertNoDifference(query.makeQuery(), [
             "query": [
-                "first": 10,
+                "from": 10,
                 "size": 20
             ]
         ])
@@ -31,13 +31,13 @@ final class DictQueryBuilderTests: XCTestCase {
     func testBuildIf() throws {
         @ElasticSearchQueryBuilder func build(bool: Bool) -> some ElasticSearchQuery {
             if bool {
-                PaginationQuery(first: 10)
+                PaginationQuery(from: 10)
             }
         }
         let queryTrue = build(bool: true)
         XCTAssertNoDifference(queryTrue.makeQuery(), [
             "query": [
-                "first": 10,
+                "from": 10,
             ]
         ])
         let queryFalse = build(bool: false)

@@ -201,23 +201,22 @@ final class PaginationQueryTests: XCTestCase {
     }
     func testBuildFirst() throws {
         @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
-            PaginationQuery(first: 10)
+            PaginationQuery(from: 10)
         }
         XCTAssertNoDifference(build().makeQuery(), [
             "query": [
-                "first": 10
+                "from": 10
             ]
         ])
     }
     func testBuildFirstSize() throws {
         @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
-            PaginationQuery(first: 10, size: 20)
+            PaginationQuery(from: 10, size: 20)
         }
         XCTAssertNoDifference(build().makeQuery(), [
-            "query": [
-                "first": 10,
-                "size": 20,
-            ]
+            "query": [:],
+            "from": 10,
+            "size": 20,
         ])
     }
 }
