@@ -3,11 +3,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-elasticsearch-query",
+    name: "swift-elasticsearch-query-builder",
     products: [
         .library(
-            name: "ElasticSearchQuery",
-            targets: ["ElasticSearchQuery"]
+            name: "ElasticSearchQueryBuilder",
+            targets: ["ElasticSearchQueryBuilder"]
         ),
     ],
     dependencies: [
@@ -15,12 +15,12 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "ElasticSearchQuery"
+            name: "ElasticSearchQueryBuilder"
         ),
         .testTarget(
-            name: "ElasticSearchQueryTests",
+            name: "ElasticSearchQueryBuilderTests",
             dependencies: [
-                "ElasticSearchQuery",
+                "ElasticSearchQueryBuilder",
                 .product(name: "CustomDump", package: "swift-custom-dump"),
             ]
         ),
