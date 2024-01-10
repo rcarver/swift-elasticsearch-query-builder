@@ -32,7 +32,19 @@ public struct DictQuery: QueryComponent {
     }
 }
 
-public struct MinimumShouldMatch: QueryComponent {
+public struct ValueQuery: QueryComponent {
+    var key: String
+    var value: QueryValue
+    public init(_ key: String, _ value:  QueryValue) {
+        self.key = key
+        self.value = value
+    }
+    public func makeValue() -> QueryDict {
+        [ self.key : self.value ]
+    }
+}
+
+public struct MinimumShouldMatchQuery: QueryComponent {
     var count: Int
     public init(_ count: Int) {
         self.count = count
@@ -79,6 +91,16 @@ public struct MustQuery<Component: QueryComponent>: QueryComponent where Compone
     }
     public func makeValue() -> QueryDict {
         [ "must" : .array(self.component.makeValue().map(QueryValue.dict)) ]
+    }
+}
+
+public struct MustNotQuery<Component: QueryComponent>: QueryComponent where Component.Value == [QueryDict] {
+    var component: Component
+    public init(@QueryArrayBuilder component: () -> Component) {
+        self.component = component()
+    }
+    public func makeValue() -> QueryDict {
+        [ "must_not" : .array(self.component.makeValue().map(QueryValue.dict)) ]
     }
 }
 
