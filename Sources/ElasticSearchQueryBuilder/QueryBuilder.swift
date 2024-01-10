@@ -20,25 +20,38 @@ public struct QueryDictBuilder {
 
 @resultBuilder
 public struct QueryArrayBuilder {
+
     public static func buildBlock<C: QueryComponent>(_ c: C) -> AppendArray<C> {
         .init(wrapped: [c])
+    }
+
+    public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendArray<C> {
+        .init(wrapped: [first])
     }
     public static func buildPartialBlock<C: QueryComponent>(first: AppendArray<C>) -> AppendArray<C> {
         first
     }
-    public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendArray<C> {
-        .init(wrapped: [first])
-    }
     public static func buildPartialBlock<C: QueryComponent>(first: OptionalArray<C>) -> AppendArray<C> {
         .init(wrapped: first.wrapped?.wrapped ?? [])
     }
+
     public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendArray<C>, next: C)
     -> AppendArray<C> {
         .init(wrapped: accumulated.wrapped + [next])
     }
+    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendArray<C>, next: OptionalArray<C>)
+    -> AppendArray<C> {
+        .init(wrapped: accumulated.wrapped + (next.wrapped?.wrapped ?? []))
+    }
+    public static func buildPartialBlock<C: QueryComponent>(accumulated: OptionalArray<C>, next: C)
+    -> AppendArray<C> {
+        .init(wrapped: accumulated.wrapped?.wrapped ?? [] + [next])
+    }
+
     public static func buildIf<C>(_ c: AppendArray<C>?) -> OptionalArray<C> {
         .init(wrapped: c)
     }
+
     public static func buildArray<C>(_ components: [AppendArray<C>]) -> AppendArray<C> {
         .init(wrapped: components.flatMap(\.wrapped))
     }

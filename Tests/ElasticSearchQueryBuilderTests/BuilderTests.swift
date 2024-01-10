@@ -100,7 +100,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
             ]
         ])
     }
-    func testBuildIf() throws {
+    func testBuildIf1() throws {
         @ElasticSearchQueryBuilder func build(title: String?) -> some ElasticSearchQuery {
             BoolQuery {
                 ShouldQuery {
@@ -136,6 +136,47 @@ final class ArrayQueryBuilderTests: XCTestCase {
                     "should": [
                         [ "match": [ "title": "Hello World" ] ],
                         [ "match": [ "content": "Elasticsearch" ] ],
+                    ]
+                ]
+            ]
+        ])
+    }
+    func testBuildIf2() throws {
+        @ElasticSearchQueryBuilder func build(title: String?) -> some ElasticSearchQuery {
+            BoolQuery {
+                ShouldQuery {
+                    if let title {
+                        DictQuery("match") {
+                            [
+                                "title": .string(title)
+                            ]
+                        }
+                    }
+                    if let title {
+                        DictQuery("match") {
+                            [
+                                "content": .string(title)
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+        let queryFalse = build(title: nil)
+        XCTAssertNoDifference(queryFalse.makeQuery(), [
+            "query": [
+                "bool": [
+                    "should": []
+                ]
+            ]
+        ])
+        let queryTrue = build(title: "Hello World")
+        XCTAssertNoDifference(queryTrue.makeQuery(), [
+            "query": [
+                "bool": [
+                    "should": [
+                        [ "match": [ "title": "Hello World" ] ],
+                        [ "match": [ "content": "Hello World" ] ],
                     ]
                 ]
             ]
