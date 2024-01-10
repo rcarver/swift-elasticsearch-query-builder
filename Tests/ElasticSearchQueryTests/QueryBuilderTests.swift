@@ -31,7 +31,10 @@ final class QueryBuilderTests: XCTestCase {
                             [
                                 "query": "Hello World",
                                 "type": "phrase_prefix",
-                                "field": "message"
+                                "fields": [
+                                    "message",
+                                    "message.search_as_you_type"
+                                ]
                             ]
                         }
                     }
@@ -47,7 +50,10 @@ final class QueryBuilderTests: XCTestCase {
                         "match": [
                             "query": "Hello World",
                             "type": "phrase_prefix",
-                            "field": "message"
+                            "fields": [
+                                "message",
+                                "message.search_as_you_type"
+                            ]
                         ]
                     ]
                 ]
@@ -58,8 +64,8 @@ final class QueryBuilderTests: XCTestCase {
         func build(tags: [String]?) -> some QueryComponent {
             ElasticSearchQuery {
                 BoolQuery {
-                    FilterQuery {
-                        if let tags {
+                    if let tags {
+                        FilterQuery {
                             DictQuery("term") {
                                 [
                                     "tags" : .array(tags.map(QueryValue.string))
@@ -85,9 +91,7 @@ final class QueryBuilderTests: XCTestCase {
         let queryFalse = build(tags: nil)
         XCTAssertNoDifference(queryFalse.makeData(), [
             "query": [
-                "bool": [
-                    "filter": [:]
-                ]
+                "bool": [:]
             ]
         ])
     }

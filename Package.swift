@@ -1,23 +1,28 @@
 // swift-tools-version: 5.9
-// The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "swift-elasticsearch-query",
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "swift-elasticsearch-query",
-            targets: ["swift-elasticsearch-query"]),
+            name: "ElasticSearchQuery",
+            targets: ["ElasticSearchQuery"]
+        ),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "1.1.0"),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "swift-elasticsearch-query"),
+            name: "ElasticSearchQuery"
+        ),
         .testTarget(
-            name: "swift-elasticsearch-queryTests",
-            dependencies: ["swift-elasticsearch-query"]),
+            name: "ElasticSearchQueryTests",
+            dependencies: [
+                "ElasticSearchQuery",
+                .product(name: "CustomDump", package: "swift-custom-dump"),
+            ]
+        ),
     ]
 )

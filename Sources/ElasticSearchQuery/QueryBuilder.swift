@@ -8,16 +8,16 @@ struct QueryBuilder {
     static func buildBlock<C: QueryComponent>(_ component: C) -> C {
         component
     }
-    static func buildBlock<C0, C1>(_ c0: C0, _ c1: C1) -> CombineKeys<C0, C1> {
+    static func buildBlock<C0, C1>(_ c0: C0, _ c1: C1) -> Merge<C0, C1> {
         .init(a: c0, b: c1)
     }
-    static func buildBlock<C0, C1, C2>(_ c0: C0, _ c1: C1, _ c2: C2) -> CombineKeys<C0, CombineKeys<C1, C2>> {
+    static func buildBlock<C0, C1, C2>(_ c0: C0, _ c1: C1, _ c2: C2) -> Merge<C0, Merge<C1, C2>> {
         .init(a: c0, b: .init(a: c1, b: c2))
     }
     public static func buildIf<C: QueryComponent>(_ c: C?) -> OptionalVoid<C> {
         .init(wrapped: c)
     }
-    struct CombineKeys<A: QueryComponent, B: QueryComponent>: QueryComponent {
+    struct Merge<A: QueryComponent, B: QueryComponent>: QueryComponent {
         var a: A
         var b: B
         func makeData() -> QueryDict {
@@ -120,5 +120,20 @@ struct MustQuery<Component: QueryComponent>: QueryComponent {
     }
     func makeData() -> QueryDict {
         [ "must" : .dict(self.component.makeData()) ]
+    }
+}
+
+struct PaginationQuery: QueryComponent {
+    var first: Int?
+    var size: Int?
+    func makeData() -> QueryDict {
+        var dict = QueryDict()
+        if let first = self.first {
+            dict["first"] = .int(first)
+        }
+        if let size = self.size {
+            dict["size"] = .int(size)
+        }
+        return dict
     }
 }
