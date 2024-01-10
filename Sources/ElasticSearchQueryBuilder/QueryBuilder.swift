@@ -1,139 +1,95 @@
 import Foundation
 
+public typealias ElasticSearchQueryBuilder = QueryDictBuilder
+
 @resultBuilder
-struct QueryBuilder {
-    static func buildBlock() -> NoopQuery {
-        NoopQuery()
+public struct QueryDictBuilder {
+    public static func buildBlock<C: QueryComponent>(_ c: C) -> OneDict<C> {
+        .init(c0: c)
     }
-    static func buildBlock<C: QueryComponent>(_ component: C) -> C {
-        component
+    public static func buildPartialBlock<C: QueryComponent>(first: C) -> C {
+        first
     }
-    static func buildBlock<C0, C1>(_ c0: C0, _ c1: C1) -> Merge<C0, C1> {
-        .init(a: c0, b: c1)
+    public static func buildPartialBlock<C0, C1>(accumulated: C0, next: C1) -> MergeDicts<C0, C1> {
+        .init(c0: accumulated, c1: next)
     }
-    static func buildBlock<C0, C1, C2>(_ c0: C0, _ c1: C1, _ c2: C2) -> Merge<C0, Merge<C1, C2>> {
-        .init(a: c0, b: .init(a: c1, b: c2))
-    }
-    public static func buildIf<C: QueryComponent>(_ c: C?) -> OptionalVoid<C> {
+    public static func buildIf<C>(_ c: C?) -> OptionalDict<C> {
         .init(wrapped: c)
     }
-    struct Merge<A: QueryComponent, B: QueryComponent>: QueryComponent {
-        var a: A
-        var b: B
-        func makeData() -> QueryDict {
-            var data: QueryDict = [:]
-            for (k, v) in self.a.makeData() {
-                data[k] = v
-            }
-            for (k, v) in self.b.makeData() {
-                data[k] = v
-            }
-            return data
+}
+
+@resultBuilder
+public struct QueryArrayBuilder {
+    public static func buildBlock<C: QueryComponent>(_ c: C) -> AppendArray<C> {
+        .init(wrapped: [c])
+    }
+    public static func buildPartialBlock<C: QueryComponent>(first: AppendArray<C>) -> AppendArray<C> {
+        first
+    }
+    public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendArray<C> {
+        .init(wrapped: [first])
+    }
+    public static func buildPartialBlock<C: QueryComponent>(first: OptionalArray<C>) -> AppendArray<C> {
+        .init(wrapped: first.wrapped?.wrapped ?? [])
+    }
+    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendArray<C>, next: C)
+    -> AppendArray<C> {
+        .init(wrapped: accumulated.wrapped + [next])
+    }
+    public static func buildIf<C>(_ c: AppendArray<C>?) -> OptionalArray<C> {
+        .init(wrapped: c)
+    }
+    public static func buildArray<C>(_ components: [AppendArray<C>]) -> AppendArray<C> {
+        .init(wrapped: components.flatMap(\.wrapped))
+    }
+}
+
+public struct OneDict<C0: QueryComponent>: QueryComponent
+where C0.Value == QueryDict {
+    var c0: C0
+    public func makeValue() -> QueryDict {
+        self.c0.makeValue()
+    }
+}
+
+public struct MergeDicts<C0: QueryComponent, C1: QueryComponent>: QueryComponent
+where C0.Value == QueryDict, C1.Value == QueryDict {
+    var c0: C0
+    var c1: C1
+    public func makeValue() -> QueryDict {
+        var data: QueryDict = [:]
+        for (k, v) in self.c0.makeValue() {
+            data[k] = v
         }
-    }
-    struct OptionalVoid<Wrapped: QueryComponent>: QueryComponent {
-        let wrapped: Wrapped?
-        func makeData() -> QueryDict {
-            guard let wrapped = self.wrapped
-            else { return [:] }
-            return wrapped.makeData()
+        for (k, v) in self.c1.makeValue() {
+            data[k] = v
         }
+        return data
     }
 }
 
-protocol QueryComponent {
-    func makeData() -> QueryDict
-}
-
-struct NoopQuery: QueryComponent {
-    func makeData() -> QueryDict {
-        [:]
+public struct OptionalDict<C: QueryComponent>: QueryComponent
+where C.Value == QueryDict {
+    let wrapped: C?
+    public func makeValue() -> QueryDict {
+        guard let wrapped = self.wrapped
+        else { return [:] }
+        return wrapped.makeValue()
     }
 }
 
-struct DictQuery: QueryComponent {
-    var key: String
-    var data: QueryDict
-    init(_ key: String, data: () -> QueryDict) {
-        self.key = key
-        self.data = data()
-    }
-    func makeData() -> QueryDict {
-        [ self.key : .dict(self.data) ]
+public struct AppendArray<C: QueryComponent>: QueryComponent {
+    var wrapped: [C]
+    public func makeValue() -> [C.Value] {
+        self.wrapped.map { $0.makeValue() }
     }
 }
 
-struct ElasticSearchQuery<Component: QueryComponent>: QueryComponent {
-    var component: Component
-    init(@QueryBuilder component: () -> Component) {
-        self.component = component()
-    }
-    func makeData() -> QueryDict {
-        [ "query" : .dict(self.component.makeData()) ]
-    }
-}
-
-struct MinimumShouldMatch: QueryComponent {
-    var count: Int
-    init(_ count: Int) {
-        self.count = count
-    }
-    func makeData() -> QueryDict {
-        [ "minimum_should_match" : .int(self.count) ]
-    }
-}
-
-struct BoolQuery<Component: QueryComponent>: QueryComponent {
-    var component: Component
-    init(@QueryBuilder component: () -> Component) {
-        self.component = component()
-    }
-    func makeData() -> QueryDict {
-        [ "bool" : .dict(self.component.makeData()) ]
-    }
-}
-
-struct FilterQuery<Component: QueryComponent>: QueryComponent {
-    var component: Component
-    init(@QueryBuilder component: () -> Component) {
-        self.component = component()
-    }
-    func makeData() -> QueryDict {
-        [ "filter" : .dict(self.component.makeData()) ]
-    }
-}
-
-struct ShouldQuery<Component: QueryComponent>: QueryComponent {
-    var component: Component
-    init(@QueryBuilder component: () -> Component) {
-        self.component = component()
-    }
-    func makeData() -> QueryDict {
-        [ "should" : .dict(self.component.makeData()) ]
-    }
-}
-
-struct MustQuery<Component: QueryComponent>: QueryComponent {
-    var component: Component
-    init(@QueryBuilder component: () -> Component) {
-        self.component = component()
-    }
-    func makeData() -> QueryDict {
-        [ "must" : .dict(self.component.makeData()) ]
-    }
-}
-
-struct PaginationQuery: QueryComponent {
-    var first: Int?
-    var size: Int?
-    func makeData() -> QueryDict {
-        var dict = QueryDict()
-        if let first = self.first {
-            dict["first"] = .int(first)
-        }
-        if let size = self.size {
-            dict["size"] = .int(size)
-        }
-        return dict
+public struct OptionalArray<C: QueryComponent>: QueryComponent {
+    let wrapped: AppendArray<C>?
+    public func makeValue() -> [C.Value] {
+        guard let wrapped = self.wrapped
+        else { return [] }
+        return wrapped.makeValue()
     }
 }
