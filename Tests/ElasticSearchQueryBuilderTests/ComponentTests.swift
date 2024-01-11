@@ -13,10 +13,8 @@ final class DictQueryTests: XCTestCase {
             }
         }
         XCTAssertNoDifference(build().makeQuery(), [
-            "query": [
-                "match_bool_prefix": [
-                    "message": "quick brown f"
-                ]
+            "match_bool_prefix": [
+                "message": "quick brown f"
             ]
         ])
     }
@@ -28,9 +26,7 @@ final class ValueQueryTests: XCTestCase {
             ValueQuery("boost", .float(1.2))
         }
         XCTAssertNoDifference(build().makeQuery(), [
-            "query": [
-                "boost": 1.2
-            ]
+            "boost": 1.2
         ])
     }
 }
@@ -71,35 +67,33 @@ final class BoolQueryTests: XCTestCase {
             }
         }
         XCTAssertNoDifference(build().makeQuery(), [
-            "query": [
-                "bool": [
-                    "minimum_should_match": 1,
-                    "should": [
-                        [
-                            "match_bool_prefix": [
-                                "message": "quick brown f"
-                            ]
+            "bool": [
+                "minimum_should_match": 1,
+                "should": [
+                    [
+                        "match_bool_prefix": [
+                            "message": "quick brown f"
                         ]
-                    ],
-                    "must": [
-                        [
-                            "match_bool_prefix": [
-                                "message": "quick brown f"
-                            ]
+                    ]
+                ],
+                "must": [
+                    [
+                        "match_bool_prefix": [
+                            "message": "quick brown f"
                         ]
-                    ],
-                    "must_not": [
-                        [
-                            "match_bool_prefix": [
-                                "message": "quick brown f"
-                            ]
+                    ]
+                ],
+                "must_not": [
+                    [
+                        "match_bool_prefix": [
+                            "message": "quick brown f"
                         ]
-                    ],
-                    "filter": [
-                        [
-                            "match_bool_prefix": [
-                                "message": "quick brown f"
-                            ]
+                    ]
+                ],
+                "filter": [
+                    [
+                        "match_bool_prefix": [
+                            "message": "quick brown f"
                         ]
                     ]
                 ]
@@ -122,13 +116,11 @@ final class FilterQueryTests: XCTestCase {
             }
         }
         XCTAssertNoDifference(build().makeQuery(), [
-            "query": [
-                "bool": [
-                    "filter": [
-                        [
-                            "match_bool_prefix": [
-                                "message": "quick brown f"
-                            ]
+            "bool": [
+                "filter": [
+                    [
+                        "match_bool_prefix": [
+                            "message": "quick brown f"
                         ]
                     ]
                 ]
@@ -164,25 +156,23 @@ final class FunctionScoreQueryTests: XCTestCase {
             }
         }
         XCTAssertNoDifference(build().makeQuery(), [
-            "query": [
-                "function_score": [
-                    "bool": [
-                        "should": [
-                            [
-                                "match_bool_prefix": [
-                                    "message": "quick brown f"
-                                ]
+            "function_score": [
+                "bool": [
+                    "should": [
+                        [
+                            "match_bool_prefix": [
+                                "message": "quick brown f"
                             ]
                         ]
-                    ],
-                    "boost": 3.2,
-                    "boost_mode": "sum",
-                    "score_mode": "avg",
-                    "functions": [
-                        [
-                            "filter": [ "match": [ "test": "cat" ] ],
-                            "weight": 42
-                        ]
+                    ]
+                ],
+                "boost": 3.2,
+                "boost_mode": "sum",
+                "score_mode": "avg",
+                "functions": [
+                    [
+                        "filter": [ "match": [ "test": "cat" ] ],
+                        "weight": 42
                     ]
                 ]
             ]
@@ -195,18 +185,14 @@ final class PaginationQueryTests: XCTestCase {
         @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
             PaginationQuery()
         }
-        XCTAssertNoDifference(build().makeQuery(), [
-            "query": [:]
-        ])
+        XCTAssertNoDifference(build().makeQuery(), [:])
     }
     func testBuildFirst() throws {
         @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
             PaginationQuery(from: 10)
         }
         XCTAssertNoDifference(build().makeQuery(), [
-            "query": [
-                "from": 10
-            ]
+            "from": 10
         ])
     }
     func testBuildFirstSize() throws {
@@ -214,7 +200,6 @@ final class PaginationQueryTests: XCTestCase {
             PaginationQuery(from: 10, size: 20)
         }
         XCTAssertNoDifference(build().makeQuery(), [
-            "query": [:],
             "from": 10,
             "size": 20,
         ])

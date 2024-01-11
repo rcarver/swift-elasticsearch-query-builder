@@ -1,12 +1,20 @@
 import Foundation
 
-public typealias ElasticSearchQueryBuilder = QueryDictBuilder
+@resultBuilder
+public struct ElasticSearchQueryBuilder {
+    public static func buildPartialBlock<C: QueryComponent>(first: C) -> RootQuery<C> {
+        .init(query: first)
+    }
+    public static func buildPartialBlock<C0, C1>(accumulated: RootQuery<C0>, next: C1) -> RootQuery<MergeDicts<C0, C1>> {
+        .init(query: .init(c0: accumulated.query, c1: next))
+    }
+    public static func buildIf<C>(_ c: C?) -> RootQuery<OptionalDict<C>> {
+        .init(query: .init(wrapped: c))
+    }
+}
 
 @resultBuilder
 public struct QueryDictBuilder {
-    public static func buildBlock<C: QueryComponent>(_ c: C) -> OneDict<C> {
-        .init(c0: c)
-    }
     public static func buildPartialBlock<C: QueryComponent>(first: C) -> C {
         first
     }
@@ -20,10 +28,6 @@ public struct QueryDictBuilder {
 
 @resultBuilder
 public struct QueryArrayBuilder {
-
-    public static func buildBlock<C: QueryComponent>(_ c: C) -> AppendArray<C> {
-        .init(wrapped: [c])
-    }
 
     public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendArray<C> {
         .init(wrapped: [first])

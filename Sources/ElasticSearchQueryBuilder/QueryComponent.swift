@@ -1,15 +1,21 @@
 import Foundation
 
-public typealias ElasticSearchQuery = QueryComponent<QueryDict>
+public protocol ElasticSearchQuery {
+    func makeQuery() -> QueryDict
+}
 
 public protocol QueryComponent<Value> {
     associatedtype Value
     func makeValue() -> Value
 }
 
-extension QueryComponent where Value == QueryDict {
+public struct RootQuery<Query: QueryComponent>: ElasticSearchQuery, QueryComponent where Query.Value == QueryDict {
+    var query: Query
+    public func makeValue() -> QueryDict {
+        self.query.makeValue()
+    }
     public func makeQuery() -> QueryDict {
-        [ "query" : .dict(self.makeValue()) ]
+        self.makeValue()
     }
 }
 
@@ -17,6 +23,16 @@ public struct NoopQuery: QueryComponent {
     public init() {}
     public func makeValue() -> QueryDict {
         [:]
+    }
+}
+
+public struct Query<Component: QueryComponent>: QueryComponent where Component.Value == QueryDict {
+    var component: Component
+    public init(@QueryDictBuilder component: () -> Component) {
+        self.component = component()
+    }
+    public func makeValue() -> QueryDict {
+        [ "query" : .dict(self.component.makeValue()) ]
     }
 }
 

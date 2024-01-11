@@ -3,6 +3,30 @@ import XCTest
 
 @testable import ElasticSearchQueryBuilder
 
+final class ElasticSearchQueryBuilderests: XCTestCase {
+    func testBuild() throws {
+        @ElasticSearchQueryBuilder func build(tags: [String]?) -> some ElasticSearchQuery {
+            Query {
+                DictQuery("match") {
+                    [
+                        "title": "Hello World"
+                    ]
+                }
+            }
+            PaginationQuery(from: 10)
+        }
+        let query = build(tags: nil)
+        XCTAssertNoDifference(query.makeQuery(), [
+            "query": [
+                "match": [
+                    "title": "Hello World"
+                ]
+            ],
+            "from": 10
+        ])
+    }
+}
+
 final class DictQueryBuilderTests: XCTestCase {
     func testBuild1() throws {
         @ElasticSearchQueryBuilder func build(tags: [String]?) -> some ElasticSearchQuery {
@@ -10,9 +34,7 @@ final class DictQueryBuilderTests: XCTestCase {
         }
         let query = build(tags: nil)
         XCTAssertNoDifference(query.makeQuery(), [
-            "query": [
-                "from": 10
-            ]
+            "from": 10
         ])
     }
     func testBuild2() throws {
@@ -22,10 +44,8 @@ final class DictQueryBuilderTests: XCTestCase {
         }
         let query = build(tags: nil)
         XCTAssertNoDifference(query.makeQuery(), [
-            "query": [
-                "from": 10,
-                "size": 20
-            ]
+            "from": 10,
+            "size": 20
         ])
     }
     func testBuildIf() throws {
@@ -36,14 +56,10 @@ final class DictQueryBuilderTests: XCTestCase {
         }
         let queryTrue = build(bool: true)
         XCTAssertNoDifference(queryTrue.makeQuery(), [
-            "query": [
-                "from": 10,
-            ]
+            "from": 10,
         ])
         let queryFalse = build(bool: false)
-        XCTAssertNoDifference(queryFalse.makeQuery(), [
-            "query": [:]
-        ])
+        XCTAssertNoDifference(queryFalse.makeQuery(), [:])
     }
 }
 
@@ -62,11 +78,9 @@ final class ArrayQueryBuilderTests: XCTestCase {
         }
         let query = build()
         XCTAssertNoDifference(query.makeQuery(), [
-            "query": [
-                "bool": [
-                    "should": [
-                        [ "match": [ "title": "Hello World" ] ]
-                    ]
+            "bool": [
+                "should": [
+                    [ "match": [ "title": "Hello World" ] ]
                 ]
             ]
         ])
@@ -90,12 +104,10 @@ final class ArrayQueryBuilderTests: XCTestCase {
         }
         let query = build()
         XCTAssertNoDifference(query.makeQuery(), [
-            "query": [
-                "bool": [
-                    "should": [
-                        [ "match": [ "title": "Hello World" ] ],
-                        [ "match": [ "content": "Elasticsearch" ] ],
-                    ]
+            "bool": [
+                "should": [
+                    [ "match": [ "title": "Hello World" ] ],
+                    [ "match": [ "content": "Elasticsearch" ] ],
                 ]
             ]
         ])
@@ -121,22 +133,18 @@ final class ArrayQueryBuilderTests: XCTestCase {
         }
         let queryFalse = build(title: nil)
         XCTAssertNoDifference(queryFalse.makeQuery(), [
-            "query": [
-                "bool": [
-                    "should": [
-                        [ "match": [ "content": "Elasticsearch" ] ],
-                    ]
+            "bool": [
+                "should": [
+                    [ "match": [ "content": "Elasticsearch" ] ],
                 ]
             ]
         ])
         let queryTrue = build(title: "Hello World")
         XCTAssertNoDifference(queryTrue.makeQuery(), [
-            "query": [
-                "bool": [
-                    "should": [
-                        [ "match": [ "title": "Hello World" ] ],
-                        [ "match": [ "content": "Elasticsearch" ] ],
-                    ]
+            "bool": [
+                "should": [
+                    [ "match": [ "title": "Hello World" ] ],
+                    [ "match": [ "content": "Elasticsearch" ] ],
                 ]
             ]
         ])
@@ -164,20 +172,16 @@ final class ArrayQueryBuilderTests: XCTestCase {
         }
         let queryFalse = build(title: nil)
         XCTAssertNoDifference(queryFalse.makeQuery(), [
-            "query": [
-                "bool": [
-                    "should": []
-                ]
+            "bool": [
+                "should": []
             ]
         ])
         let queryTrue = build(title: "Hello World")
         XCTAssertNoDifference(queryTrue.makeQuery(), [
-            "query": [
-                "bool": [
-                    "should": [
-                        [ "match": [ "title": "Hello World" ] ],
-                        [ "match": [ "content": "Hello World" ] ],
-                    ]
+            "bool": [
+                "should": [
+                    [ "match": [ "title": "Hello World" ] ],
+                    [ "match": [ "content": "Hello World" ] ],
                 ]
             ]
         ])
@@ -198,12 +202,10 @@ final class ArrayQueryBuilderTests: XCTestCase {
         }
         let query = build()
         XCTAssertNoDifference(query.makeQuery(), [
-            "query": [
-                "bool": [
-                    "should": [
-                        [ "match": [ "title": "Hello" ] ],
-                        [ "match": [ "title": "World" ] ],
-                    ]
+            "bool": [
+                "should": [
+                    [ "match": [ "title": "Hello" ] ],
+                    [ "match": [ "title": "World" ] ],
                 ]
             ]
         ])
