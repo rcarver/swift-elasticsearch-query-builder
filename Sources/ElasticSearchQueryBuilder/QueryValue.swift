@@ -4,11 +4,20 @@ public typealias QueryDict = [ String : QueryValue ]
 
 public enum QueryValue: Equatable {
     case array([QueryValue])
-    case date(Date)
+    case date(Date, format: QueryDateFormat)
     case dict(QueryDict)
     case float(Float)
     case int(Int)
     case string(String)
+}
+
+public enum QueryDateFormat {
+    /// Encode the `Date` as an ISO-8601-formatted string (in RFC 3339 format).
+    case iso8601
+    /// Encode the `Date` as a UNIX timestamp (as a JSON string).
+    case secondsSince1970
+    /// Encode the `Date` as UNIX millisecond timestamp (as a JSON string).
+    case millisecondsSince1970
 }
 
 extension QueryValue: ExpressibleByArrayLiteral {

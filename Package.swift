@@ -4,6 +4,10 @@ import PackageDescription
 
 let package = Package(
     name: "swift-elasticsearch-query-builder",
+    platforms: [
+        .macOS(.v12),
+        .iOS(.v13),
+    ],
     products: [
         .library(
             name: "ElasticSearchQueryBuilder",
