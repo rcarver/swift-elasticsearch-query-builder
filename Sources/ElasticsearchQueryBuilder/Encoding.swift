@@ -9,7 +9,7 @@ extension QueryValue: Encodable {
         case let .date(value, format: format):
             switch format {
             case .iso8601:
-                try container.encode(value.ISO8601Format())
+                try container.encode(value.formatted(.iso8601))
             case .secondsSince1970:
                 try container.encode(String(describing: Int(value.timeIntervalSince1970)))
             case .millisecondsSince1970:
