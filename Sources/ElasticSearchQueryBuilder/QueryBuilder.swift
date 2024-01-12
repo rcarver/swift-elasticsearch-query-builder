@@ -2,13 +2,13 @@ import Foundation
 
 @resultBuilder
 public struct ElasticSearchQueryBuilder {
-    public static func buildPartialBlock<C: QueryComponent>(first: C) -> RootQuery<C> {
+    public static func buildPartialBlock<C: QueryComponent>(first: C) -> RootComponent<C> {
         .init(query: first)
     }
-    public static func buildPartialBlock<C0, C1>(accumulated: RootQuery<C0>, next: C1) -> RootQuery<MergeDicts<C0, C1>> {
+    public static func buildPartialBlock<C0, C1>(accumulated: RootComponent<C0>, next: C1) -> RootComponent<MergeDicts<C0, C1>> {
         .init(query: .init(c0: accumulated.query, c1: next))
     }
-    public static func buildIf<C>(_ c: C?) -> RootQuery<OptionalDict<C>> {
+    public static func buildIf<C>(_ c: C?) -> RootComponent<OptionalDict<C>> {
         .init(query: .init(wrapped: c))
     }
 }

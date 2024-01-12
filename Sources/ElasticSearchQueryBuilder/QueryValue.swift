@@ -1,6 +1,6 @@
 import Foundation
 
-public typealias QueryDict = [ String : QueryValue? ]
+public typealias QueryDict = [ String : QueryValue ]
 
 public enum QueryValue: Equatable {
     case array([QueryValue])

@@ -3,17 +3,17 @@ import XCTest
 
 @testable import ElasticSearchQueryBuilder
 
-final class ElasticSearchQueryBuilderests: XCTestCase {
+final class ElasticSearchQueryBuilderTests: XCTestCase {
     func testBuild() throws {
-        @ElasticSearchQueryBuilder func build(tags: [String]?) -> some ElasticSearchQuery {
-            Query {
-                DictQuery("match") {
+        @ElasticSearchQueryBuilder func build(tags: [String]?) -> some esb.QueryDSL {
+            esb.Query {
+                esb.Dict("match") {
                     [
                         "title": "Hello World"
                     ]
                 }
             }
-            PaginationQuery(from: 10)
+            esb.Pagination(from: 10)
         }
         let query = build(tags: nil)
         XCTAssertNoDifference(query.makeQuery(), [
@@ -29,8 +29,8 @@ final class ElasticSearchQueryBuilderests: XCTestCase {
 
 final class DictQueryBuilderTests: XCTestCase {
     func testBuild1() throws {
-        @ElasticSearchQueryBuilder func build(tags: [String]?) -> some ElasticSearchQuery {
-            PaginationQuery(from: 10)
+        @ElasticSearchQueryBuilder func build(tags: [String]?) -> some esb.QueryDSL {
+            esb.Pagination(from: 10)
         }
         let query = build(tags: nil)
         XCTAssertNoDifference(query.makeQuery(), [
@@ -38,9 +38,9 @@ final class DictQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuild2() throws {
-        @ElasticSearchQueryBuilder func build(tags: [String]?) -> some ElasticSearchQuery {
-            PaginationQuery(from: 10)
-            PaginationQuery(size: 20)
+        @ElasticSearchQueryBuilder func build(tags: [String]?) -> some esb.QueryDSL {
+            esb.Pagination(from: 10)
+            esb.Pagination(size: 20)
         }
         let query = build(tags: nil)
         XCTAssertNoDifference(query.makeQuery(), [
@@ -49,9 +49,9 @@ final class DictQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuildIf() throws {
-        @ElasticSearchQueryBuilder func build(bool: Bool) -> some ElasticSearchQuery {
+        @ElasticSearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {
             if bool {
-                PaginationQuery(from: 10)
+                esb.Pagination(from: 10)
             }
         }
         let queryTrue = build(bool: true)
@@ -65,10 +65,10 @@ final class DictQueryBuilderTests: XCTestCase {
 
 final class ArrayQueryBuilderTests: XCTestCase {
     func testBuild1() throws {
-        @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
-            BoolQuery {
-                ShouldQuery {
-                    DictQuery("match") {
+        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Bool {
+                esb.Should {
+                    esb.Dict("match") {
                         [
                             "title": "Hello World"
                         ]
@@ -86,15 +86,15 @@ final class ArrayQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuild2() throws {
-        @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
-            BoolQuery {
-                ShouldQuery {
-                    DictQuery("match") {
+        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Bool {
+                esb.Should {
+                    esb.Dict("match") {
                         [
                             "title": "Hello World"
                         ]
                     }
-                    DictQuery("match") {
+                    esb.Dict("match") {
                         [
                             "content": "Elasticsearch"
                         ]
@@ -113,17 +113,17 @@ final class ArrayQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuildIf1() throws {
-        @ElasticSearchQueryBuilder func build(title: String?) -> some ElasticSearchQuery {
-            BoolQuery {
-                ShouldQuery {
+        @ElasticSearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
+            esb.Bool {
+                esb.Should {
                     if let title {
-                        DictQuery("match") {
+                        esb.Dict("match") {
                             [
                                 "title": .string(title)
                             ]
                         }
                     }
-                    DictQuery("match") {
+                    esb.Dict("match") {
                         [
                             "content": "Elasticsearch"
                         ]
@@ -150,18 +150,18 @@ final class ArrayQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuildIf2() throws {
-        @ElasticSearchQueryBuilder func build(title: String?) -> some ElasticSearchQuery {
-            BoolQuery {
-                ShouldQuery {
+        @ElasticSearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
+            esb.Bool {
+                esb.Should {
                     if let title {
-                        DictQuery("match") {
+                        esb.Dict("match") {
                             [
                                 "title": .string(title)
                             ]
                         }
                     }
                     if let title {
-                        DictQuery("match") {
+                        esb.Dict("match") {
                             [
                                 "content": .string(title)
                             ]
@@ -187,11 +187,11 @@ final class ArrayQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuildArray() throws {
-        @ElasticSearchQueryBuilder func build() -> some ElasticSearchQuery {
-            BoolQuery {
-                ShouldQuery {
+        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Bool {
+                esb.Should {
                     for str in ["Hello", "World"] {
-                        DictQuery("match") {
+                        esb.Dict("match") {
                             [
                                 "title": .string(str)
                             ]
