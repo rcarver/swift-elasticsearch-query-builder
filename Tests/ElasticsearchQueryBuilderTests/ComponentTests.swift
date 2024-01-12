@@ -45,18 +45,15 @@ final class KeyTests: XCTestCase {
 
 final class QueryTests: XCTestCase {
     func testBuild() throws {
-@ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
-    esb.Query {
-        esb.Bool {
-            esb.Key("match_bool_prefix") {
-                [
-                    "message": "quick brown f"
-                ]
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Query {
+                esb.Key("match_bool_prefix") {
+                    [
+                        "message": "quick brown f"
+                    ]
+                }
             }
         }
-    }
-    esb.Pagination.init(size: 20)
-}
         XCTAssertNoDifference(build().makeQuery(), [
             "query": [
                 "match_bool_prefix": [
