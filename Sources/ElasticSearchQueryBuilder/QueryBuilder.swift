@@ -35,21 +35,21 @@ public struct QueryDictBuilder {
 @resultBuilder
 public struct QueryArrayBuilder {
 
-    public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendArray<C> {
-        .init(wrapped: [first])
+    public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendDicts where C.Value == QueryDict {
+        .init(wrapped: [first.makeValue()])
     }
-    public static func buildPartialBlock<C: QueryComponent>(first: AppendArray<C>) -> AppendArray<C> {
+    public static func buildPartialBlock(first: AppendDicts) -> AppendDicts {
         first
     }
 
-    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendArray<C>, next: C) -> AppendArray<C> {
-        .init(wrapped: accumulated.wrapped + [next])
+    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendDicts, next: C) -> AppendDicts where C.Value == QueryDict {
+        .init(wrapped: accumulated.wrapped + [next.makeValue()])
     }
-    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendArray<C>, next: AppendArray<C>) -> AppendArray<C> {
+    public static func buildPartialBlock(accumulated: AppendDicts, next: AppendDicts) -> AppendDicts {
         .init(wrapped: accumulated.wrapped + next.wrapped)
     }
 
-    public static func buildIf<C>(_ c: AppendArray<C>?) -> AppendArray<C> {
+    public static func buildIf(_ c: AppendDicts?) -> AppendDicts {
         .init(wrapped: c?.wrapped ?? [])
     }
 
@@ -60,7 +60,41 @@ public struct QueryArrayBuilder {
         c
     }
 
-    public static func buildArray<C>(_ components: [AppendArray<C>]) -> AppendArray<C> {
+    public static func buildArray(_ components: [AppendDicts]) -> AppendDicts {
+        .init(wrapped: components.flatMap(\.wrapped))
+    }
+}
+
+/// This is a properly typed resultBuilder but doesn't support heterogeneous collections
+@resultBuilder
+public struct QueryArrayBuilder_Typed {
+
+    public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendComponents<C> {
+        .init(wrapped: [first])
+    }
+    public static func buildPartialBlock<C: QueryComponent>(first: AppendComponents<C>) -> AppendComponents<C> {
+        first
+    }
+
+    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendComponents<C>, next: C) -> AppendComponents<C> {
+        .init(wrapped: accumulated.wrapped + [next])
+    }
+    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendComponents<C>, next: AppendComponents<C>) -> AppendComponents<C> {
+        .init(wrapped: accumulated.wrapped + next.wrapped)
+    }
+
+    public static func buildIf<C>(_ c: AppendComponents<C>?) -> AppendComponents<C> {
+        .init(wrapped: c?.wrapped ?? [])
+    }
+
+    public static func buildEither<C>(first c: C) -> C {
+        c
+    }
+    public static func buildEither<C>(second c: C) -> C {
+        c
+    }
+
+    public static func buildArray<C>(_ components: [AppendComponents<C>]) -> AppendComponents<C> {
         .init(wrapped: components.flatMap(\.wrapped))
     }
 }
@@ -103,9 +137,16 @@ where First.Value == Second.Value {
     }
 }
 
-public struct AppendArray<C: QueryComponent>: QueryComponent {
+public struct AppendComponents<C: QueryComponent>: QueryComponent {
     var wrapped: [C]
     public func makeValue() -> [C.Value] {
         self.wrapped.map { $0.makeValue() }
+    }
+}
+
+public struct AppendDicts: QueryComponent {
+    var wrapped: [QueryDict]
+    public func makeValue() -> [QueryDict] {
+        self.wrapped
     }
 }

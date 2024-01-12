@@ -123,7 +123,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
             ]
         ])
     }
-    func testBuild2() throws {
+    func testBuild2Homogeneous() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Should {
                 esb.Dict("match") {
@@ -143,6 +143,25 @@ final class ArrayQueryBuilderTests: XCTestCase {
             "should": [
                 [ "match": [ "title": "Hello World" ] ],
                 [ "match": [ "content": "Elasticsearch" ] ],
+            ]
+        ])
+    }
+    func testBuild2Heterogeneous() throws {
+        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Should {
+                esb.Dict("match") {
+                    [
+                        "title": "Hello World"
+                    ]
+                }
+                esb.Pagination(from: 10)
+            }
+        }
+        let query = build()
+        XCTAssertNoDifference(query.makeQuery(), [
+            "should": [
+                [ "match": [ "title": "Hello World" ] ],
+                [ "from": 10 ]
             ]
         ])
     }
