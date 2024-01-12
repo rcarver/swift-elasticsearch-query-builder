@@ -1,11 +1,11 @@
 import CustomDump
 import XCTest
 
-@testable import ElasticSearchQueryBuilder
+@testable import ElasticsearchQueryBuilder
 
-final class ElasticSearchQueryBuilderTests: XCTestCase {
+final class ElasticsearchQueryBuilderTests: XCTestCase {
     func testBuild() throws {
-        @ElasticSearchQueryBuilder func build(tags: [String]?) -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build(tags: [String]?) -> some esb.QueryDSL {
             esb.Query {
                 esb.Key("match") {
                     [
@@ -26,7 +26,7 @@ final class ElasticSearchQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuildIf() throws {
-        @ElasticSearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {
             if bool {
                 esb.Pagination(from: 10)
             }
@@ -42,7 +42,7 @@ final class ElasticSearchQueryBuilderTests: XCTestCase {
 
 final class DictQueryBuilderTests: XCTestCase {
     func testBuild1() throws {
-        @ElasticSearchQueryBuilder func build(tags: [String]?) -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build(tags: [String]?) -> some esb.QueryDSL {
             esb.Pagination(from: 10)
         }
         let query = build(tags: nil)
@@ -51,7 +51,7 @@ final class DictQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuild2() throws {
-        @ElasticSearchQueryBuilder func build(tags: [String]?) -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build(tags: [String]?) -> some esb.QueryDSL {
             esb.Pagination(from: 10)
             esb.Pagination(size: 20)
         }
@@ -62,7 +62,7 @@ final class DictQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuildIf() throws {
-        @ElasticSearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {
             esb.Query {
                 if bool {
                     esb.Pagination(from: 10)
@@ -79,7 +79,7 @@ final class DictQueryBuilderTests: XCTestCase {
         XCTAssertNoDifference(queryFalse.makeQuery(), [:])
     }
     func testBuildEither() throws {
-        @ElasticSearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {
             esb.Query {
                 if bool {
                     esb.Pagination(from: 10)
@@ -105,7 +105,7 @@ final class DictQueryBuilderTests: XCTestCase {
 
 final class ArrayQueryBuilderTests: XCTestCase {
     func testBuild1() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Should {
                 esb.Key("match") {
                     [
@@ -122,7 +122,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuild2Homogeneous() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Should {
                 esb.Key("match") {
                     [
@@ -145,7 +145,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuild2Heterogeneous() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Should {
                 esb.Key("match") {
                     [
@@ -164,7 +164,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuildIf1() throws {
-        @ElasticSearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
             esb.Should {
                 if let title {
                     esb.Key("match") {
@@ -195,7 +195,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuildIf2() throws {
-        @ElasticSearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
             esb.Should {
                 if let title {
                     esb.Key("match") {
@@ -224,7 +224,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuildEither() throws {
-        @ElasticSearchQueryBuilder func build(_ enabled: Bool) -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build(_ enabled: Bool) -> some esb.QueryDSL {
             esb.Should {
                 if enabled {
                     esb.Pagination(from: 10)
@@ -247,7 +247,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
         ])
     }
     func testBuildArray() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Should {
                 for str in ["Hello", "World"] {
                     esb.Key("match") {

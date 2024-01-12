@@ -1,7 +1,7 @@
 import Foundation
 
 @resultBuilder
-public struct ElasticSearchQueryBuilder {
+public struct ElasticsearchQueryBuilder {
     public static func buildPartialBlock<C: DictComponent>(first: C) -> RootComponent<C> {
         .init(component: first)
     }

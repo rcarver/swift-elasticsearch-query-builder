@@ -1,11 +1,11 @@
 import CustomDump
 import XCTest
 
-@testable import ElasticSearchQueryBuilder
+@testable import ElasticsearchQueryBuilder
 
 final class NothingTests: XCTestCase {
     func testBuild() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Nothing()
         }
         XCTAssertNoDifference(build().makeQuery(), [:])
@@ -14,7 +14,7 @@ final class NothingTests: XCTestCase {
 
 final class KeyTests: XCTestCase {
     func testBuildValue() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Key("boost", .float(1.2))
         }
         XCTAssertNoDifference(build().makeQuery(), [
@@ -22,7 +22,7 @@ final class KeyTests: XCTestCase {
         ])
     }
     func testBuildDict() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Key("match_bool_prefix") {
                 [
                     "message": "quick brown f"
@@ -36,7 +36,7 @@ final class KeyTests: XCTestCase {
         ])
     }
     func testBuildDictEmpty() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Key("match", .dict([:]))
         }
         XCTAssertNoDifference(build().makeQuery(), [:])
@@ -45,7 +45,7 @@ final class KeyTests: XCTestCase {
 
 final class QueryTests: XCTestCase {
     func testBuild() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Query {
                 esb.Key("match_bool_prefix") {
                     [
@@ -63,7 +63,7 @@ final class QueryTests: XCTestCase {
         ])
     }
     func testBuildEmpty() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Query {
                 esb.Key("match", .dict([:]))
             }
@@ -74,7 +74,7 @@ final class QueryTests: XCTestCase {
 
 final class BoolTests: XCTestCase {
     func testBuild() throws {
-        @ElasticSearchQueryBuilder func build(_ enabled: Bool) -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build(_ enabled: Bool) -> some esb.QueryDSL {
             esb.Bool {
                 esb.MinimumShouldMatch(1)
                 esb.Should {
@@ -155,7 +155,7 @@ final class BoolTests: XCTestCase {
         ])
     }
     func testBuildEmpty() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Bool {
                 esb.Should {
                     esb.Key("match", .dict([:]))
@@ -177,7 +177,7 @@ final class BoolTests: XCTestCase {
 
 final class FunctionScoreTests: XCTestCase {
     func testBuild() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.FunctionScore {
                 esb.Bool {
                     esb.Should {
@@ -228,13 +228,13 @@ final class FunctionScoreTests: XCTestCase {
 
 final class SearchPaginationTests: XCTestCase {
     func testBuildNone() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Pagination()
         }
         XCTAssertNoDifference(build().makeQuery(), [:])
     }
     func testBuildFirst() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Pagination(from: 10)
         }
         XCTAssertNoDifference(build().makeQuery(), [
@@ -242,7 +242,7 @@ final class SearchPaginationTests: XCTestCase {
         ])
     }
     func testBuildFirstSize() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Pagination(from: 10, size: 20)
         }
         XCTAssertNoDifference(build().makeQuery(), [

@@ -10,8 +10,8 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "ElasticSearchQueryBuilder",
-            targets: ["ElasticSearchQueryBuilder"]
+            name: "ElasticsearchQueryBuilder",
+            targets: ["ElasticsearchQueryBuilder"]
         ),
     ],
     dependencies: [
@@ -19,12 +19,12 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "ElasticSearchQueryBuilder"
+            name: "ElasticsearchQueryBuilder"
         ),
         .testTarget(
-            name: "ElasticSearchQueryBuilderTests",
+            name: "ElasticsearchQueryBuilderTests",
             dependencies: [
-                "ElasticSearchQueryBuilder",
+                "ElasticsearchQueryBuilder",
                 .product(name: "CustomDump", package: "swift-custom-dump"),
             ]
         ),

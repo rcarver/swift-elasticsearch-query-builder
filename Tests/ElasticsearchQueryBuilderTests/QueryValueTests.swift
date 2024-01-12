@@ -1,7 +1,7 @@
 import CustomDump
 import XCTest
 
-@testable import ElasticSearchQueryBuilder
+@testable import ElasticsearchQueryBuilder
 
 final class QueryValueTests: XCTestCase {
 

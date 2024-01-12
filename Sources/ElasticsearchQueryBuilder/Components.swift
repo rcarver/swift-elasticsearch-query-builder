@@ -30,7 +30,7 @@ public struct RootComponent<Component: DictComponent>: RootQueryable, DictCompon
     }
 }
 
-/// Namespace for `@ElasticSearchQueryBuilder` components
+/// Namespace for `@ElasticsearchQueryBuilder` components
 public enum esb {}
 
 extension esb {
