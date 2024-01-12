@@ -76,9 +76,7 @@ final class DictQueryBuilderTests: XCTestCase {
             ]
         ])
         let queryFalse = build(bool: false)
-        XCTAssertNoDifference(queryFalse.makeQuery(), [
-            "query": [:]
-        ])
+        XCTAssertNoDifference(queryFalse.makeQuery(), [:])
     }
     func testBuildEither() throws {
         @ElasticSearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {

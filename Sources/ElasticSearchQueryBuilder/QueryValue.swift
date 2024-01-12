@@ -33,8 +33,11 @@ extension QueryValue {
     public static func array(_ values: [String]) -> Self {
         .array(values.map(Self.string))
     }
-    public static func array(descriptions values: [some CustomStringConvertible]) -> Self {
+    public static func array(describing values: [some CustomStringConvertible]) -> Self {
         .array(values.map(\.description).map(Self.string))
+    }
+    public static func string(describing value: some CustomStringConvertible) -> Self {
+        .string(value.description)
     }
 }
 

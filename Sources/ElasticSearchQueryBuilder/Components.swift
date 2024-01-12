@@ -12,6 +12,14 @@ public protocol ArrayComponent {
     func makeArray() -> [QueryDict]
 }
 
+extension ArrayComponent {
+    func makeCompactArray() -> [QueryDict] {
+        var value = self.makeArray()
+        value.removeAll(where: \.isEmpty)
+        return value
+    }
+}
+
 public struct RootComponent<Component: DictComponent>: RootQueryable, DictComponent {
     var component: Component
     public func makeDict() -> QueryDict {
@@ -44,7 +52,12 @@ extension esb {
             self.component = component()
         }
         public func makeDict() -> QueryDict {
-            [ "query" : .dict(self.component.makeDict()) ]
+            let dict = self.component.makeDict()
+            if dict.isEmpty {
+                return [:]
+            } else {
+                return [ "query" : .dict(self.component.makeDict()) ]
+            }
         }
     }
 
@@ -61,7 +74,22 @@ extension esb {
             self.value = .dict(value())
         }
         public func makeDict() -> QueryDict {
-            [ self.key : self.value ]
+            switch self.value {
+            case let .dict(value):
+                if value.isEmpty {
+                    return [:]
+                } else {
+                    return [ self.key : self.value ]
+                }
+            case let .array(value):
+                if value.isEmpty {
+                    return [:]
+                } else {
+                   return [ self.key : self.value ]
+                }
+            default:
+                return [ self.key : self.value ]
+            }
         }
     }
 
@@ -83,7 +111,12 @@ extension esb {
             self.component = component()
         }
         public func makeDict() -> QueryDict {
-            [ "bool" : .dict(self.component.makeDict()) ]
+            let dict = self.component.makeDict()
+            if dict.isEmpty {
+                return [:]
+            } else {
+                return [ "bool" : .dict(dict) ]
+            }
         }
     }
 
@@ -94,7 +127,7 @@ extension esb {
             self.component = component()
         }
         public func makeDict() -> QueryDict {
-            let values: [QueryDict] = self.component.makeArray()
+            let values: [QueryDict] = self.component.makeCompactArray()
             if values.isEmpty {
                 return [:]
             } else {
@@ -110,7 +143,7 @@ extension esb {
             self.component = component()
         }
         public func makeDict() -> QueryDict {
-            let values: [QueryDict] = self.component.makeArray()
+            let values: [QueryDict] = self.component.makeCompactArray()
             if values.isEmpty {
                 return [:]
             } else {
@@ -126,7 +159,7 @@ extension esb {
             self.component = component()
         }
         public func makeDict() -> QueryDict {
-            let values: [QueryDict] = self.component.makeArray()
+            let values: [QueryDict] = self.component.makeCompactArray()
             if values.isEmpty {
                 return [:]
             } else {
@@ -142,7 +175,7 @@ extension esb {
             self.component = component()
         }
         public func makeDict() -> QueryDict {
-            let values: [QueryDict] = self.component.makeArray()
+            let values: [QueryDict] = self.component.makeCompactArray()
             if values.isEmpty {
                 return [:]
             } else {
@@ -169,7 +202,12 @@ extension esb {
             self.component = component()
         }
         public func makeDict() -> QueryDict {
-            [ "functions" : .array(self.component.makeArray().map(QueryValue.dict)) ]
+            let values: [QueryDict] = self.component.makeCompactArray()
+            if values.isEmpty {
+                return [:]
+            } else {
+                return [ "functions" :  .array(values.map(QueryValue.dict)) ]
+            }
         }
     }
 

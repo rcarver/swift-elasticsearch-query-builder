@@ -35,6 +35,12 @@ final class KeyTests: XCTestCase {
             ]
         ])
     }
+    func testBuildDictEmpty() throws {
+        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Key("match", .dict([:]))
+        }
+        XCTAssertNoDifference(build().makeQuery(), [:])
+    }
 }
 
 final class QueryTests: XCTestCase {
@@ -55,6 +61,14 @@ final class QueryTests: XCTestCase {
                 ]
             ]
         ])
+    }
+    func testBuildEmpty() throws {
+        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Query {
+                esb.Key("match", .dict([:]))
+            }
+        }
+        XCTAssertNoDifference(build().makeQuery(), [:])
     }
 }
 
@@ -139,6 +153,25 @@ final class BoolTests: XCTestCase {
                 "minimum_should_match": 1
             ]
         ])
+    }
+    func testBuildEmpty() throws {
+        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Bool {
+                esb.Should {
+                    esb.Key("match", .dict([:]))
+                }
+                esb.Must {
+                    esb.Key("match", .dict([:]))
+                }
+                esb.MustNot {
+                    esb.Key("match", .dict([:]))
+                }
+                esb.Filter {
+                    esb.Key("match", .dict([:]))
+                }
+            }
+        }
+        XCTAssertNoDifference(build().makeQuery(), [:])
     }
 }
 

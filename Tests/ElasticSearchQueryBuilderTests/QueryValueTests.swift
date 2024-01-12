@@ -26,8 +26,18 @@ final class QueryValueTests: XCTestCase {
             var description: String
         }
         XCTAssertNoDifference(
-            QueryValue.array(descriptions: [Custom(description: "a"), Custom(description: "b")]),
+            QueryValue.array(describing: [Custom(description: "a"), Custom(description: "b")]),
             QueryValue.array([.string("a"), .string("b")])
+        )
+    }
+
+    func test_string() {
+        struct Custom: CustomStringConvertible {
+            var description: String
+        }
+        XCTAssertNoDifference(
+            QueryValue.string(describing: Custom(description: "a")),
+            QueryValue.string("a")
         )
     }
 }
