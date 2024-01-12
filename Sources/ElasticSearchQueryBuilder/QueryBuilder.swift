@@ -35,14 +35,14 @@ public struct QueryDictBuilder {
 @resultBuilder
 public struct QueryArrayBuilder {
 
-    public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendDicts where C.Value == QueryDict {
+    public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendDicts {
         .init(wrapped: [first.makeValue()])
     }
     public static func buildPartialBlock(first: AppendDicts) -> AppendDicts {
         first
     }
 
-    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendDicts, next: C) -> AppendDicts where C.Value == QueryDict {
+    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendDicts, next: C) -> AppendDicts {
         .init(wrapped: accumulated.wrapped + [next.makeValue()])
     }
     public static func buildPartialBlock(accumulated: AppendDicts, next: AppendDicts) -> AppendDicts {
@@ -99,8 +99,7 @@ public struct QueryArrayBuilder_Typed {
     }
 }
 
-public struct MergeDicts<C0: QueryComponent, C1: QueryComponent>: QueryComponent
-where C0.Value == QueryDict, C1.Value == QueryDict {
+public struct MergeDicts<C0: QueryComponent, C1: QueryComponent>: QueryComponent {
     var c0: C0
     var c1: C1
     public func makeValue() -> QueryDict {
@@ -115,8 +114,7 @@ where C0.Value == QueryDict, C1.Value == QueryDict {
     }
 }
 
-public struct OptionalDict<C: QueryComponent>: QueryComponent
-where C.Value == QueryDict {
+public struct OptionalDict<C: QueryComponent>: QueryComponent {
     let wrapped: C?
     public func makeValue() -> QueryDict {
         guard let wrapped = self.wrapped
@@ -125,11 +123,10 @@ where C.Value == QueryDict {
     }
 }
 
-public enum ConditionalDict<First: QueryComponent, Second: QueryComponent>: QueryComponent
-where First.Value == Second.Value {
+public enum ConditionalDict<First: QueryComponent, Second: QueryComponent>: QueryComponent {
     case first(First)
     case second(Second)
-    public func makeValue() -> First.Value {
+    public func makeValue() -> QueryDict {
         switch self {
         case let .first(first): first.makeValue()
         case let .second(second): second.makeValue()
@@ -137,14 +134,14 @@ where First.Value == Second.Value {
     }
 }
 
-public struct AppendComponents<C: QueryComponent>: QueryComponent {
+public struct AppendComponents<C: QueryComponent>: ArrayComponent {
     var wrapped: [C]
-    public func makeValue() -> [C.Value] {
+    public func makeValue() -> [QueryDict] {
         self.wrapped.map { $0.makeValue() }
     }
 }
 
-public struct AppendDicts: QueryComponent {
+public struct AppendDicts: ArrayComponent {
     var wrapped: [QueryDict]
     public func makeValue() -> [QueryDict] {
         self.wrapped

@@ -4,12 +4,15 @@ public protocol RootQueryable {
     func makeQuery() -> QueryDict
 }
 
-public protocol QueryComponent<Value> {
-    associatedtype Value
-    func makeValue() -> Value
+public protocol QueryComponent {
+    func makeValue() -> QueryDict
 }
 
-public struct RootComponent<Query: QueryComponent>: RootQueryable, QueryComponent where Query.Value == QueryDict {
+public protocol ArrayComponent {
+    func makeValue() -> [QueryDict]
+}
+
+public struct RootComponent<Query: QueryComponent>: RootQueryable, QueryComponent {
     var query: Query
     public func makeValue() -> QueryDict {
         self.query.makeValue()
@@ -33,7 +36,7 @@ extension esb {
         }
     }
 
-    public struct Group<Component: QueryComponent>: QueryComponent where Component.Value == QueryDict {
+    public struct Group<Component: QueryComponent>: QueryComponent {
         var component: Component
         public init(@QueryDictBuilder component: () -> Component) {
             self.component = component()
@@ -43,7 +46,7 @@ extension esb {
         }
     }
 
-    public struct Query<Component: QueryComponent>: QueryComponent where Component.Value == QueryDict {
+    public struct Query<Component: QueryComponent>: QueryComponent {
         var component: Component
         public init(@QueryDictBuilder component: () -> Component) {
             self.component = component()
@@ -87,7 +90,7 @@ extension esb {
         }
     }
 
-    public struct Bool<Component: QueryComponent>: QueryComponent where Component.Value == QueryDict {
+    public struct Bool<Component: QueryComponent>: QueryComponent {
         var component: Component
         public init(@QueryDictBuilder component: () -> Component) {
             self.component = component()
@@ -97,7 +100,7 @@ extension esb {
         }
     }
 
-    public struct Filter<Component: QueryComponent>: QueryComponent where Component.Value == [QueryDict] {
+    public struct Filter<Component: ArrayComponent>: QueryComponent {
         var component: Component
         public init(@QueryArrayBuilder component: () -> Component) {
             self.component = component()
@@ -112,7 +115,7 @@ extension esb {
         }
     }
 
-    public struct Should<Component: QueryComponent>: QueryComponent where Component.Value == [QueryDict] {
+    public struct Should<Component: ArrayComponent>: QueryComponent {
         var component: Component
         public init(@QueryArrayBuilder component: () -> Component) {
             self.component = component()
@@ -127,7 +130,7 @@ extension esb {
         }
     }
 
-    public struct Must<Component: QueryComponent>: QueryComponent where Component.Value == [QueryDict] {
+    public struct Must<Component: ArrayComponent>: QueryComponent {
         var component: Component
         public init(@QueryArrayBuilder component: () -> Component) {
             self.component = component()
@@ -142,7 +145,7 @@ extension esb {
         }
     }
 
-    public struct MustNot<Component: QueryComponent>: QueryComponent where Component.Value == [QueryDict] {
+    public struct MustNot<Component: ArrayComponent>: QueryComponent {
         var component: Component
         public init(@QueryArrayBuilder component: () -> Component) {
             self.component = component()
@@ -157,7 +160,7 @@ extension esb {
         }
     }
 
-    public struct FunctionScore<Component: QueryComponent>: QueryComponent where Component.Value == QueryDict {
+    public struct FunctionScore<Component: QueryComponent>: QueryComponent {
         var component: Component
         public init(@QueryDictBuilder component: () -> Component) {
             self.component = component()
@@ -167,7 +170,7 @@ extension esb {
         }
     }
 
-    public struct FunctionsList<Component: QueryComponent>: QueryComponent where Component.Value == [QueryDict] {
+    public struct FunctionsList<Component: ArrayComponent>: QueryComponent {
         var component: Component
         public init(@QueryArrayBuilder component: () -> Component) {
             self.component = component()
