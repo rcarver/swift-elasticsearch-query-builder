@@ -33,21 +33,6 @@ final class EncodingTests: XCTestCase {
 
     let date = Date(timeIntervalSince1970: 1001.12345)
 
-    func test_date_iso8601() throws {
-        try assertFormattedDate(
-            .date(date, format: .iso8601),
-            """
-            "1970-01-01T00:16:41Z"
-            """
-        )
-        try assertFormattedDate(
-            date,
-            dateEncodingStrategy:.iso8601,
-            """
-            "1970-01-01T00:16:41Z"
-            """
-        )
-    }
     func test_date_secondsSince1970() throws {
         try assertFormattedDate(
             .date(date, format: .secondsSince1970),

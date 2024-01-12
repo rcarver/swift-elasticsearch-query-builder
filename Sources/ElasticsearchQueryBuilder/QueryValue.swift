@@ -12,8 +12,6 @@ public enum QueryValue: Equatable {
 }
 
 public enum QueryDateFormat {
-    /// Encode the `Date` as an ISO-8601-formatted string (in RFC 3339 format).
-    case iso8601
     /// Encode the `Date` as a UNIX timestamp (as a JSON string).
     case secondsSince1970
     /// Encode the `Date` as UNIX millisecond timestamp (as a JSON string).
