@@ -29,13 +29,15 @@ extension esb {
 
     public typealias QueryDSL = RootQueryable
 
-    public struct None: DictComponent {
+    /// An empty component, adding nothing to the query syntax.
+    public struct Nothing: DictComponent {
         public init() {}
         public func makeDict() -> QueryDict {
             [:]
         }
     }
 
+    /// Adds `query` block to the query syntax.
     public struct Query<Component: DictComponent>: DictComponent {
         var component: Component
         public init(@QueryDictBuilder component: () -> Component) {
@@ -46,30 +48,24 @@ extension esb {
         }
     }
 
-    public struct Dict: DictComponent {
-        var key: String
-        var value: QueryDict
-        public init(_ key: String, value: () -> QueryDict) {
-            self.key = key
-            self.value = value()
-        }
-        public func makeDict() -> QueryDict {
-            [ self.key : .dict(self.value) ]
-        }
-    }
-
-    public struct Value: DictComponent {
+    /// Adds a `key` with any type of value to the query syntax.
+    public struct Key: DictComponent {
         var key: String
         var value: QueryValue
-        public init(_ key: String, _ value:  QueryValue) {
+        public init(_ key: String, _ value: QueryValue) {
             self.key = key
             self.value = value
+        }
+        public init(_ key: String, value: () -> QueryDict) {
+            self.key = key
+            self.value = .dict(value())
         }
         public func makeDict() -> QueryDict {
             [ self.key : self.value ]
         }
     }
 
+    /// Adds `minimum_should_match` to the query syntax.
     public struct MinimumShouldMatch: DictComponent {
         var count: Int
         public init(_ count: Int) {
@@ -80,6 +76,7 @@ extension esb {
         }
     }
 
+    /// Adds `bool` block to the query syntax.
     public struct Bool<Component: DictComponent>: DictComponent {
         var component: Component
         public init(@QueryDictBuilder component: () -> Component) {
@@ -90,6 +87,7 @@ extension esb {
         }
     }
 
+    /// Adds `filter` block to the query syntax.
     public struct Filter<Component: ArrayComponent>: DictComponent {
         var component: Component
         public init(@QueryArrayBuilder component: () -> Component) {
@@ -105,6 +103,7 @@ extension esb {
         }
     }
 
+    /// Adds `should` block to the query syntax.
     public struct Should<Component: ArrayComponent>: DictComponent {
         var component: Component
         public init(@QueryArrayBuilder component: () -> Component) {
@@ -120,6 +119,7 @@ extension esb {
         }
     }
 
+    /// Adds `must` block to the query syntax.
     public struct Must<Component: ArrayComponent>: DictComponent {
         var component: Component
         public init(@QueryArrayBuilder component: () -> Component) {
@@ -135,6 +135,7 @@ extension esb {
         }
     }
 
+    /// Adds `must_not` block to the query syntax.
     public struct MustNot<Component: ArrayComponent>: DictComponent {
         var component: Component
         public init(@QueryArrayBuilder component: () -> Component) {
@@ -150,6 +151,7 @@ extension esb {
         }
     }
 
+    /// Adds `function_score` block to the query syntax.
     public struct FunctionScore<Component: DictComponent>: DictComponent {
         var component: Component
         public init(@QueryDictBuilder component: () -> Component) {
@@ -160,6 +162,7 @@ extension esb {
         }
     }
 
+    /// Adds `functions` block to the query syntax.
     public struct FunctionsList<Component: ArrayComponent>: DictComponent {
         var component: Component
         public init(@QueryArrayBuilder component: () -> Component) {
@@ -170,6 +173,7 @@ extension esb {
         }
     }
 
+    /// Adds an element to a `FunctionsList` block to the query syntax.
     public struct Function: DictComponent {
         var function: QueryDict
         public init(function: () -> QueryDict) {
@@ -180,6 +184,7 @@ extension esb {
         }
     }
 
+    /// Adds a `boost` key to the query syntax.
     public struct Boost: DictComponent {
         let boost: Float
         public init(_ boost: Float) {
@@ -190,6 +195,7 @@ extension esb {
         }
     }
 
+    /// Adds a `boost_mode` key to the query syntax.
     public struct BoostMode: DictComponent {
         let mode: BoostModeType
         public init(_ mode: BoostModeType) {
@@ -200,6 +206,7 @@ extension esb {
         }
     }
 
+    /// Adds a `score_mode` key to the query syntax.
     public struct ScoreMode: DictComponent {
         let mode: ScoreModeType
         public init(_ mode: ScoreModeType) {
@@ -210,6 +217,7 @@ extension esb {
         }
     }
 
+    /// Adds `from` and/or `size` keys to the query syntax.
     public struct Pagination: DictComponent, Equatable {
         public var from: Int?
         public var size: Int?

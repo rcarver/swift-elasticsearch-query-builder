@@ -20,6 +20,24 @@ public enum QueryDateFormat {
     case millisecondsSince1970
 }
 
+extension QueryValue {
+    public static func array(_ values: [Float]) -> Self {
+        .array(values.map(Self.float))
+    }
+    public static func array(_ values: [Double]) -> Self {
+        .array(values.map(Float.init).map(Self.float))
+    }
+    public static func array(_ values: [Int]) -> Self {
+        .array(values.map(Self.int))
+    }
+    public static func array(_ values: [String]) -> Self {
+        .array(values.map(Self.string))
+    }
+    public static func array(descriptions values: [some CustomStringConvertible]) -> Self {
+        .array(values.map(\.description).map(Self.string))
+    }
+}
+
 extension QueryValue: ExpressibleByArrayLiteral {
     public init(arrayLiteral elements: QueryValue...) {
         self = .array(elements)

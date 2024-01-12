@@ -3,19 +3,27 @@ import XCTest
 
 @testable import ElasticSearchQueryBuilder
 
-final class NoneTests: XCTestCase {
+final class NothingTests: XCTestCase {
     func testBuild() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
-            esb.None()
+            esb.Nothing()
         }
         XCTAssertNoDifference(build().makeQuery(), [:])
     }
 }
 
-final class DictTests: XCTestCase {
-    func testBuild() throws {
+final class KeyTests: XCTestCase {
+    func testBuildValue() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
-            esb.Dict("match_bool_prefix") {
+            esb.Key("boost", .float(1.2))
+        }
+        XCTAssertNoDifference(build().makeQuery(), [
+            "boost": 1.2
+        ])
+    }
+    func testBuildDict() throws {
+        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Key("match_bool_prefix") {
                 [
                     "message": "quick brown f"
                 ]
@@ -29,22 +37,11 @@ final class DictTests: XCTestCase {
     }
 }
 
-final class ValueTests: XCTestCase {
-    func testBuild() throws {
-        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
-            esb.Value("boost", .float(1.2))
-        }
-        XCTAssertNoDifference(build().makeQuery(), [
-            "boost": 1.2
-        ])
-    }
-}
-
 final class QueryTests: XCTestCase {
     func testBuild() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Query {
-                esb.Dict("match_bool_prefix") {
+                esb.Key("match_bool_prefix") {
                     [
                         "message": "quick brown f"
                     ]
@@ -68,7 +65,7 @@ final class BoolTests: XCTestCase {
                 esb.MinimumShouldMatch(1)
                 esb.Should {
                     if enabled {
-                        esb.Dict("match_bool_prefix") {
+                        esb.Key("match_bool_prefix") {
                             [
                                 "message": "quick brown f"
                             ]
@@ -77,7 +74,7 @@ final class BoolTests: XCTestCase {
                 }
                 esb.Must {
                     if enabled {
-                        esb.Dict("match_bool_prefix") {
+                        esb.Key("match_bool_prefix") {
                             [
                                 "message": "quick brown f"
                             ]
@@ -86,7 +83,7 @@ final class BoolTests: XCTestCase {
                 }
                 esb.MustNot {
                     if enabled {
-                        esb.Dict("match_bool_prefix") {
+                        esb.Key("match_bool_prefix") {
                             [
                                 "message": "quick brown f"
                             ]
@@ -95,7 +92,7 @@ final class BoolTests: XCTestCase {
                 }
                 esb.Filter {
                     if enabled {
-                        esb.Dict("match_bool_prefix") {
+                        esb.Key("match_bool_prefix") {
                             [
                                 "message": "quick brown f"
                             ]
@@ -151,7 +148,7 @@ final class FunctionScoreTests: XCTestCase {
             esb.FunctionScore {
                 esb.Bool {
                     esb.Should {
-                        esb.Dict("match_bool_prefix") {
+                        esb.Key("match_bool_prefix") {
                             [
                                 "message": "quick brown f"
                             ]

@@ -7,7 +7,7 @@ final class ElasticSearchQueryBuilderTests: XCTestCase {
     func testBuild() throws {
         @ElasticSearchQueryBuilder func build(tags: [String]?) -> some esb.QueryDSL {
             esb.Query {
-                esb.Dict("match") {
+                esb.Key("match") {
                     [
                         "title": "Hello World"
                     ]
@@ -86,7 +86,7 @@ final class DictQueryBuilderTests: XCTestCase {
                 if bool {
                     esb.Pagination(from: 10)
                 } else {
-                    esb.Value("from", .int(20))
+                    esb.Key("from", .int(20))
                 }
             }
         }
@@ -109,7 +109,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
     func testBuild1() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Should {
-                esb.Dict("match") {
+                esb.Key("match") {
                     [
                         "title": "Hello World"
                     ]
@@ -126,12 +126,12 @@ final class ArrayQueryBuilderTests: XCTestCase {
     func testBuild2Homogeneous() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Should {
-                esb.Dict("match") {
+                esb.Key("match") {
                     [
                         "title": "Hello World"
                     ]
                 }
-                esb.Dict("match") {
+                esb.Key("match") {
                     [
                         "content": "Elasticsearch"
                     ]
@@ -149,7 +149,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
     func testBuild2Heterogeneous() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Should {
-                esb.Dict("match") {
+                esb.Key("match") {
                     [
                         "title": "Hello World"
                     ]
@@ -169,13 +169,13 @@ final class ArrayQueryBuilderTests: XCTestCase {
         @ElasticSearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
             esb.Should {
                 if let title {
-                    esb.Dict("match") {
+                    esb.Key("match") {
                         [
                             "title": .string(title)
                         ]
                     }
                 }
-                esb.Dict("match") {
+                esb.Key("match") {
                     [
                         "content": "Elasticsearch"
                     ]
@@ -200,14 +200,14 @@ final class ArrayQueryBuilderTests: XCTestCase {
         @ElasticSearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
             esb.Should {
                 if let title {
-                    esb.Dict("match") {
+                    esb.Key("match") {
                         [
                             "title": .string(title)
                         ]
                     }
                 }
                 if let title {
-                    esb.Dict("match") {
+                    esb.Key("match") {
                         [
                             "content": .string(title)
                         ]
@@ -252,7 +252,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Should {
                 for str in ["Hello", "World"] {
-                    esb.Dict("match") {
+                    esb.Key("match") {
                         [
                             "title": .string(str)
                         ]
