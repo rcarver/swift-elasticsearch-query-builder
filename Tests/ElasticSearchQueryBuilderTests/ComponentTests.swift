@@ -3,6 +3,15 @@ import XCTest
 
 @testable import ElasticSearchQueryBuilder
 
+final class NoneTests: XCTestCase {
+    func testBuild() throws {
+        @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.None()
+        }
+        XCTAssertNoDifference(build().makeQuery(), [:])
+    }
+}
+
 final class DictTests: XCTestCase {
     func testBuild() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {

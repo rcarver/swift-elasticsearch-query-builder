@@ -19,19 +19,19 @@ public struct RootComponent<Query: QueryComponent>: RootQueryable, QueryComponen
     }
 }
 
-public struct NoopComponent: QueryComponent {
-    public init() {}
-    public func makeValue() -> QueryDict {
-        [:]
-    }
-}
-
 /// Namespace for `@ElasticSearchQueryBuilder` components
 public enum esb {}
 
 extension esb {
 
     public typealias QueryDSL = RootQueryable
+
+    public struct None: QueryComponent {
+        public init() {}
+        public func makeValue() -> QueryDict {
+            [:]
+        }
+    }
 
     public struct Query<Component: QueryComponent>: QueryComponent where Component.Value == QueryDict {
         var component: Component
