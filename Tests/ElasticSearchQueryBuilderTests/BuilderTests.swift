@@ -172,9 +172,7 @@ final class ArrayQueryBuilderTests: XCTestCase {
         }
         let queryFalse = build(title: nil)
         XCTAssertNoDifference(queryFalse.makeQuery(), [
-            "bool": [
-                "should": []
-            ]
+            "bool": [:]
         ])
         let queryTrue = build(title: "Hello World")
         XCTAssertNoDifference(queryTrue.makeQuery(), [

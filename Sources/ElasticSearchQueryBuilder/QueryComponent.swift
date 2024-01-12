@@ -93,7 +93,12 @@ extension esb {
             self.component = component()
         }
         public func makeValue() -> QueryDict {
-            [ "filter" : .array(self.component.makeValue().map(QueryValue.dict)) ]
+            let values: [QueryDict] = self.component.makeValue()
+            if values.isEmpty {
+                return [:]
+            } else {
+                return [ "filter" :  .array(values.map(QueryValue.dict)) ]
+            }
         }
     }
 
@@ -103,7 +108,12 @@ extension esb {
             self.component = component()
         }
         public func makeValue() -> QueryDict {
-            [ "should" : .array(self.component.makeValue().map(QueryValue.dict)) ]
+            let values: [QueryDict] = self.component.makeValue()
+            if values.isEmpty {
+                return [:]
+            } else {
+                return [ "should" :  .array(values.map(QueryValue.dict)) ]
+            }
         }
     }
 
@@ -113,7 +123,12 @@ extension esb {
             self.component = component()
         }
         public func makeValue() -> QueryDict {
-            [ "must" : .array(self.component.makeValue().map(QueryValue.dict)) ]
+            let values: [QueryDict] = self.component.makeValue()
+            if values.isEmpty {
+                return [:]
+            } else {
+                return [ "must" :  .array(values.map(QueryValue.dict)) ]
+            }
         }
     }
 
@@ -123,7 +138,12 @@ extension esb {
             self.component = component()
         }
         public func makeValue() -> QueryDict {
-            [ "must_not" : .array(self.component.makeValue().map(QueryValue.dict)) ]
+            let values: [QueryDict] = self.component.makeValue()
+            if values.isEmpty {
+                return [:]
+            } else {
+                return [ "must_not" :  .array(values.map(QueryValue.dict)) ]
+            }
         }
     }
 
