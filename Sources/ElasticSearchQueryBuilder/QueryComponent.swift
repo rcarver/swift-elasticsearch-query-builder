@@ -33,6 +33,16 @@ extension esb {
         }
     }
 
+    public struct Group<Component: QueryComponent>: QueryComponent where Component.Value == QueryDict {
+        var component: Component
+        public init(@QueryDictBuilder component: () -> Component) {
+            self.component = component()
+        }
+        public func makeValue() -> QueryDict {
+            self.component.makeValue()
+        }
+    }
+
     public struct Query<Component: QueryComponent>: QueryComponent where Component.Value == QueryDict {
         var component: Component
         public init(@QueryDictBuilder component: () -> Component) {

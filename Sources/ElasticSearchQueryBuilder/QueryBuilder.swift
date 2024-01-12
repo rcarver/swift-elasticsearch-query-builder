@@ -24,6 +24,12 @@ public struct QueryDictBuilder {
     public static func buildIf<C>(_ c: C?) -> OptionalDict<C> {
         .init(wrapped: c)
     }
+    public static func buildEither<TrueC, FalseC>(first c: TrueC) -> ConditionalDict<TrueC, FalseC> {
+        .first(c)
+    }
+    public static func buildEither<TrueC, FalseC>(second c: FalseC) -> ConditionalDict<TrueC, FalseC> {
+        .second(c)
+    }
 }
 
 @resultBuilder
@@ -35,37 +41,27 @@ public struct QueryArrayBuilder {
     public static func buildPartialBlock<C: QueryComponent>(first: AppendArray<C>) -> AppendArray<C> {
         first
     }
-    public static func buildPartialBlock<C: QueryComponent>(first: OptionalArray<C>) -> AppendArray<C> {
-        .init(wrapped: first.wrapped?.wrapped ?? [])
-    }
 
-    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendArray<C>, next: C)
-    -> AppendArray<C> {
+    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendArray<C>, next: C) -> AppendArray<C> {
         .init(wrapped: accumulated.wrapped + [next])
     }
-    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendArray<C>, next: OptionalArray<C>)
-    -> AppendArray<C> {
-        .init(wrapped: accumulated.wrapped + (next.wrapped?.wrapped ?? []))
-    }
-    public static func buildPartialBlock<C: QueryComponent>(accumulated: OptionalArray<C>, next: C)
-    -> AppendArray<C> {
-        .init(wrapped: accumulated.wrapped?.wrapped ?? [] + [next])
+    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendArray<C>, next: AppendArray<C>) -> AppendArray<C> {
+        .init(wrapped: accumulated.wrapped + next.wrapped)
     }
 
-    public static func buildIf<C>(_ c: AppendArray<C>?) -> OptionalArray<C> {
-        .init(wrapped: c)
+    public static func buildIf<C>(_ c: AppendArray<C>?) -> AppendArray<C> {
+        .init(wrapped: c?.wrapped ?? [])
+    }
+
+    public static func buildEither<C>(first c: C) -> C {
+        c
+    }
+    public static func buildEither<C>(second c: C) -> C {
+        c
     }
 
     public static func buildArray<C>(_ components: [AppendArray<C>]) -> AppendArray<C> {
         .init(wrapped: components.flatMap(\.wrapped))
-    }
-}
-
-public struct OneDict<C0: QueryComponent>: QueryComponent
-where C0.Value == QueryDict {
-    var c0: C0
-    public func makeValue() -> QueryDict {
-        self.c0.makeValue()
     }
 }
 
@@ -95,18 +91,21 @@ where C.Value == QueryDict {
     }
 }
 
+public enum ConditionalDict<First: QueryComponent, Second: QueryComponent>: QueryComponent
+where First.Value == Second.Value {
+    case first(First)
+    case second(Second)
+    public func makeValue() -> First.Value {
+        switch self {
+        case let .first(first): first.makeValue()
+        case let .second(second): second.makeValue()
+        }
+    }
+}
+
 public struct AppendArray<C: QueryComponent>: QueryComponent {
     var wrapped: [C]
     public func makeValue() -> [C.Value] {
         self.wrapped.map { $0.makeValue() }
-    }
-}
-
-public struct OptionalArray<C: QueryComponent>: QueryComponent {
-    let wrapped: AppendArray<C>?
-    public func makeValue() -> [C.Value] {
-        guard let wrapped = self.wrapped
-        else { return [] }
-        return wrapped.makeValue()
     }
 }

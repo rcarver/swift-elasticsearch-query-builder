@@ -25,6 +25,19 @@ final class ElasticSearchQueryBuilderTests: XCTestCase {
             "from": 10
         ])
     }
+    func testBuildIf() throws {
+        @ElasticSearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {
+            if bool {
+                esb.Pagination(from: 10)
+            }
+        }
+        let queryTrue = build(bool: true)
+        XCTAssertNoDifference(queryTrue.makeQuery(), [
+            "from": 10
+        ])
+        let queryFalse = build(bool: false)
+        XCTAssertNoDifference(queryFalse.makeQuery(), [:])
+    }
 }
 
 final class DictQueryBuilderTests: XCTestCase {
@@ -50,16 +63,45 @@ final class DictQueryBuilderTests: XCTestCase {
     }
     func testBuildIf() throws {
         @ElasticSearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {
-            if bool {
-                esb.Pagination(from: 10)
+            esb.Query {
+                if bool {
+                    esb.Pagination(from: 10)
+                }
             }
         }
         let queryTrue = build(bool: true)
         XCTAssertNoDifference(queryTrue.makeQuery(), [
-            "from": 10,
+            "query": [
+                "from": 10
+            ]
         ])
         let queryFalse = build(bool: false)
-        XCTAssertNoDifference(queryFalse.makeQuery(), [:])
+        XCTAssertNoDifference(queryFalse.makeQuery(), [
+            "query": [:]
+        ])
+    }
+    func testBuildEither() throws {
+        @ElasticSearchQueryBuilder func build(bool: Bool) -> some esb.QueryDSL {
+            esb.Query {
+                if bool {
+                    esb.Pagination(from: 10)
+                } else {
+                    esb.Value("from", .int(20))
+                }
+            }
+        }
+        let queryTrue = build(bool: true)
+        XCTAssertNoDifference(queryTrue.makeQuery(), [
+            "query": [
+                "from": 10
+            ]
+        ])
+        let queryFalse = build(bool: false)
+        XCTAssertNoDifference(queryFalse.makeQuery(), [
+            "query": [
+                "from": 20,
+            ]
+        ])
     }
 }
 
@@ -180,6 +222,35 @@ final class ArrayQueryBuilderTests: XCTestCase {
                 "should": [
                     [ "match": [ "title": "Hello World" ] ],
                     [ "match": [ "content": "Hello World" ] ],
+                ]
+            ]
+        ])
+    }
+    func testBuildEither() throws {
+        @ElasticSearchQueryBuilder func build(_ enabled: Bool) -> some esb.QueryDSL {
+            esb.Bool {
+                esb.Should {
+                    if enabled {
+                        esb.Pagination(from: 10)
+                    } else {
+                        esb.Pagination(from: 20)
+                    }
+                }
+            }
+        }
+        let queryTrue = build(true)
+        XCTAssertNoDifference(queryTrue.makeQuery(), [
+            "bool": [
+                "should": [
+                    [ "from": 10 ]
+                ]
+            ]
+        ])
+        let queryFalse = build(false)
+        XCTAssertNoDifference(queryFalse.makeQuery(), [
+            "bool": [
+                "should": [
+                    [ "from": 20 ]
                 ]
             ]
         ])
