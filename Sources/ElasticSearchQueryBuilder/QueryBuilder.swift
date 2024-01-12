@@ -2,23 +2,23 @@ import Foundation
 
 @resultBuilder
 public struct ElasticSearchQueryBuilder {
-    public static func buildPartialBlock<C: QueryComponent>(first: C) -> RootComponent<C> {
-        .init(query: first)
+    public static func buildPartialBlock<C: DictComponent>(first: C) -> RootComponent<C> {
+        .init(component: first)
     }
-    public static func buildPartialBlock<C0, C1>(accumulated: RootComponent<C0>, next: C1) -> RootComponent<MergeDicts<C0, C1>> {
-        .init(query: .init(c0: accumulated.query, c1: next))
+    public static func buildPartialBlock<C0, C1>(accumulated: RootComponent<C0>, next: C1) -> RootComponent<MergedDict<C0, C1>> {
+        .init(component: .init(c0: accumulated.component, c1: next))
     }
     public static func buildIf<C>(_ c: C?) -> RootComponent<OptionalDict<C>> {
-        .init(query: .init(wrapped: c))
+        .init(component: .init(wrapped: c))
     }
 }
 
 @resultBuilder
 public struct QueryDictBuilder {
-    public static func buildPartialBlock<C: QueryComponent>(first: C) -> C {
+    public static func buildPartialBlock<C: DictComponent>(first: C) -> C {
         first
     }
-    public static func buildPartialBlock<C0, C1>(accumulated: C0, next: C1) -> MergeDicts<C0, C1> {
+    public static func buildPartialBlock<C0, C1>(accumulated: C0, next: C1) -> MergedDict<C0, C1> {
         .init(c0: accumulated, c1: next)
     }
     public static func buildIf<C>(_ c: C?) -> OptionalDict<C> {
@@ -35,21 +35,21 @@ public struct QueryDictBuilder {
 @resultBuilder
 public struct QueryArrayBuilder {
 
-    public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendDicts {
-        .init(wrapped: [first.makeValue()])
+    public static func buildPartialBlock<C: DictComponent>(first: C) -> AppendDictValues {
+        .init(wrapped: [first.makeDict()])
     }
-    public static func buildPartialBlock(first: AppendDicts) -> AppendDicts {
+    public static func buildPartialBlock(first: AppendDictValues) -> AppendDictValues {
         first
     }
 
-    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendDicts, next: C) -> AppendDicts {
-        .init(wrapped: accumulated.wrapped + [next.makeValue()])
+    public static func buildPartialBlock<C: DictComponent>(accumulated: AppendDictValues, next: C) -> AppendDictValues {
+        .init(wrapped: accumulated.wrapped + [next.makeDict()])
     }
-    public static func buildPartialBlock(accumulated: AppendDicts, next: AppendDicts) -> AppendDicts {
+    public static func buildPartialBlock(accumulated: AppendDictValues, next: AppendDictValues) -> AppendDictValues {
         .init(wrapped: accumulated.wrapped + next.wrapped)
     }
 
-    public static func buildIf(_ c: AppendDicts?) -> AppendDicts {
+    public static func buildIf(_ c: AppendDictValues?) -> AppendDictValues {
         .init(wrapped: c?.wrapped ?? [])
     }
 
@@ -60,7 +60,7 @@ public struct QueryArrayBuilder {
         c
     }
 
-    public static func buildArray(_ components: [AppendDicts]) -> AppendDicts {
+    public static func buildArray(_ components: [AppendDictValues]) -> AppendDictValues {
         .init(wrapped: components.flatMap(\.wrapped))
     }
 }
@@ -69,21 +69,21 @@ public struct QueryArrayBuilder {
 @resultBuilder
 public struct QueryArrayBuilder_Typed {
 
-    public static func buildPartialBlock<C: QueryComponent>(first: C) -> AppendComponents<C> {
+    public static func buildPartialBlock<C: DictComponent>(first: C) -> AppendDictComponents<C> {
         .init(wrapped: [first])
     }
-    public static func buildPartialBlock<C: QueryComponent>(first: AppendComponents<C>) -> AppendComponents<C> {
+    public static func buildPartialBlock<C: DictComponent>(first: AppendDictComponents<C>) -> AppendDictComponents<C> {
         first
     }
 
-    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendComponents<C>, next: C) -> AppendComponents<C> {
+    public static func buildPartialBlock<C: DictComponent>(accumulated: AppendDictComponents<C>, next: C) -> AppendDictComponents<C> {
         .init(wrapped: accumulated.wrapped + [next])
     }
-    public static func buildPartialBlock<C: QueryComponent>(accumulated: AppendComponents<C>, next: AppendComponents<C>) -> AppendComponents<C> {
+    public static func buildPartialBlock<C: DictComponent>(accumulated: AppendDictComponents<C>, next: AppendDictComponents<C>) -> AppendDictComponents<C> {
         .init(wrapped: accumulated.wrapped + next.wrapped)
     }
 
-    public static func buildIf<C>(_ c: AppendComponents<C>?) -> AppendComponents<C> {
+    public static func buildIf<C>(_ c: AppendDictComponents<C>?) -> AppendDictComponents<C> {
         .init(wrapped: c?.wrapped ?? [])
     }
 
@@ -94,56 +94,56 @@ public struct QueryArrayBuilder_Typed {
         c
     }
 
-    public static func buildArray<C>(_ components: [AppendComponents<C>]) -> AppendComponents<C> {
+    public static func buildArray<C>(_ components: [AppendDictComponents<C>]) -> AppendDictComponents<C> {
         .init(wrapped: components.flatMap(\.wrapped))
     }
 }
 
-public struct MergeDicts<C0: QueryComponent, C1: QueryComponent>: QueryComponent {
+public struct MergedDict<C0: DictComponent, C1: DictComponent>: DictComponent {
     var c0: C0
     var c1: C1
-    public func makeValue() -> QueryDict {
+    public func makeDict() -> QueryDict {
         var data: QueryDict = [:]
-        for (k, v) in self.c0.makeValue() {
+        for (k, v) in self.c0.makeDict() {
             data[k] = v
         }
-        for (k, v) in self.c1.makeValue() {
+        for (k, v) in self.c1.makeDict() {
             data[k] = v
         }
         return data
     }
 }
 
-public struct OptionalDict<C: QueryComponent>: QueryComponent {
+public struct OptionalDict<C: DictComponent>: DictComponent {
     let wrapped: C?
-    public func makeValue() -> QueryDict {
+    public func makeDict() -> QueryDict {
         guard let wrapped = self.wrapped
         else { return [:] }
-        return wrapped.makeValue()
+        return wrapped.makeDict()
     }
 }
 
-public enum ConditionalDict<First: QueryComponent, Second: QueryComponent>: QueryComponent {
+public enum ConditionalDict<First: DictComponent, Second: DictComponent>: DictComponent {
     case first(First)
     case second(Second)
-    public func makeValue() -> QueryDict {
+    public func makeDict() -> QueryDict {
         switch self {
-        case let .first(first): first.makeValue()
-        case let .second(second): second.makeValue()
+        case let .first(first): first.makeDict()
+        case let .second(second): second.makeDict()
         }
     }
 }
 
-public struct AppendComponents<C: QueryComponent>: ArrayComponent {
+public struct AppendDictComponents<C: DictComponent>: ArrayComponent {
     var wrapped: [C]
-    public func makeValue() -> [QueryDict] {
-        self.wrapped.map { $0.makeValue() }
+    public func makeArray() -> [QueryDict] {
+        self.wrapped.map { $0.makeDict() }
     }
 }
 
-public struct AppendDicts: ArrayComponent {
+public struct AppendDictValues: ArrayComponent {
     var wrapped: [QueryDict]
-    public func makeValue() -> [QueryDict] {
+    public func makeArray() -> [QueryDict] {
         self.wrapped
     }
 }
