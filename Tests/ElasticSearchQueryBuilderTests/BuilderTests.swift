@@ -108,174 +108,144 @@ final class DictQueryBuilderTests: XCTestCase {
 final class ArrayQueryBuilderTests: XCTestCase {
     func testBuild1() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
-            esb.Bool {
-                esb.Should {
-                    esb.Dict("match") {
-                        [
-                            "title": "Hello World"
-                        ]
-                    }
+            esb.Should {
+                esb.Dict("match") {
+                    [
+                        "title": "Hello World"
+                    ]
                 }
             }
         }
         let query = build()
         XCTAssertNoDifference(query.makeQuery(), [
-            "bool": [
-                "should": [
-                    [ "match": [ "title": "Hello World" ] ]
-                ]
+            "should": [
+                [ "match": [ "title": "Hello World" ] ]
             ]
         ])
     }
     func testBuild2() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
-            esb.Bool {
-                esb.Should {
-                    esb.Dict("match") {
-                        [
-                            "title": "Hello World"
-                        ]
-                    }
-                    esb.Dict("match") {
-                        [
-                            "content": "Elasticsearch"
-                        ]
-                    }
+            esb.Should {
+                esb.Dict("match") {
+                    [
+                        "title": "Hello World"
+                    ]
+                }
+                esb.Dict("match") {
+                    [
+                        "content": "Elasticsearch"
+                    ]
                 }
             }
         }
         let query = build()
         XCTAssertNoDifference(query.makeQuery(), [
-            "bool": [
-                "should": [
-                    [ "match": [ "title": "Hello World" ] ],
-                    [ "match": [ "content": "Elasticsearch" ] ],
-                ]
+            "should": [
+                [ "match": [ "title": "Hello World" ] ],
+                [ "match": [ "content": "Elasticsearch" ] ],
             ]
         ])
     }
     func testBuildIf1() throws {
         @ElasticSearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
-            esb.Bool {
-                esb.Should {
-                    if let title {
-                        esb.Dict("match") {
-                            [
-                                "title": .string(title)
-                            ]
-                        }
-                    }
+            esb.Should {
+                if let title {
                     esb.Dict("match") {
                         [
-                            "content": "Elasticsearch"
+                            "title": .string(title)
+                        ]
+                    }
+                }
+                esb.Dict("match") {
+                    [
+                        "content": "Elasticsearch"
+                    ]
+                }
+            }
+        }
+        let queryFalse = build(title: nil)
+        XCTAssertNoDifference(queryFalse.makeQuery(), [
+            "should": [
+                [ "match": [ "content": "Elasticsearch" ] ],
+            ]
+        ])
+        let queryTrue = build(title: "Hello World")
+        XCTAssertNoDifference(queryTrue.makeQuery(), [
+            "should": [
+                [ "match": [ "title": "Hello World" ] ],
+                [ "match": [ "content": "Elasticsearch" ] ],
+            ]
+        ])
+    }
+    func testBuildIf2() throws {
+        @ElasticSearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
+            esb.Should {
+                if let title {
+                    esb.Dict("match") {
+                        [
+                            "title": .string(title)
+                        ]
+                    }
+                }
+                if let title {
+                    esb.Dict("match") {
+                        [
+                            "content": .string(title)
                         ]
                     }
                 }
             }
         }
         let queryFalse = build(title: nil)
-        XCTAssertNoDifference(queryFalse.makeQuery(), [
-            "bool": [
-                "should": [
-                    [ "match": [ "content": "Elasticsearch" ] ],
-                ]
-            ]
-        ])
+        XCTAssertNoDifference(queryFalse.makeQuery(), [:])
         let queryTrue = build(title: "Hello World")
         XCTAssertNoDifference(queryTrue.makeQuery(), [
-            "bool": [
-                "should": [
-                    [ "match": [ "title": "Hello World" ] ],
-                    [ "match": [ "content": "Elasticsearch" ] ],
-                ]
-            ]
-        ])
-    }
-    func testBuildIf2() throws {
-        @ElasticSearchQueryBuilder func build(title: String?) -> some esb.QueryDSL {
-            esb.Bool {
-                esb.Should {
-                    if let title {
-                        esb.Dict("match") {
-                            [
-                                "title": .string(title)
-                            ]
-                        }
-                    }
-                    if let title {
-                        esb.Dict("match") {
-                            [
-                                "content": .string(title)
-                            ]
-                        }
-                    }
-                }
-            }
-        }
-        let queryFalse = build(title: nil)
-        XCTAssertNoDifference(queryFalse.makeQuery(), [
-            "bool": [:]
-        ])
-        let queryTrue = build(title: "Hello World")
-        XCTAssertNoDifference(queryTrue.makeQuery(), [
-            "bool": [
-                "should": [
-                    [ "match": [ "title": "Hello World" ] ],
-                    [ "match": [ "content": "Hello World" ] ],
-                ]
+            "should": [
+                [ "match": [ "title": "Hello World" ] ],
+                [ "match": [ "content": "Hello World" ] ],
             ]
         ])
     }
     func testBuildEither() throws {
         @ElasticSearchQueryBuilder func build(_ enabled: Bool) -> some esb.QueryDSL {
-            esb.Bool {
-                esb.Should {
-                    if enabled {
-                        esb.Pagination(from: 10)
-                    } else {
-                        esb.Pagination(from: 20)
-                    }
+            esb.Should {
+                if enabled {
+                    esb.Pagination(from: 10)
+                } else {
+                    esb.Pagination(from: 20)
                 }
             }
         }
         let queryTrue = build(true)
         XCTAssertNoDifference(queryTrue.makeQuery(), [
-            "bool": [
-                "should": [
-                    [ "from": 10 ]
-                ]
+            "should": [
+                [ "from": 10 ]
             ]
         ])
         let queryFalse = build(false)
         XCTAssertNoDifference(queryFalse.makeQuery(), [
-            "bool": [
-                "should": [
-                    [ "from": 20 ]
-                ]
+            "should": [
+                [ "from": 20 ]
             ]
         ])
     }
     func testBuildArray() throws {
         @ElasticSearchQueryBuilder func build() -> some esb.QueryDSL {
-            esb.Bool {
-                esb.Should {
-                    for str in ["Hello", "World"] {
-                        esb.Dict("match") {
-                            [
-                                "title": .string(str)
-                            ]
-                        }
+            esb.Should {
+                for str in ["Hello", "World"] {
+                    esb.Dict("match") {
+                        [
+                            "title": .string(str)
+                        ]
                     }
                 }
             }
         }
         let query = build()
         XCTAssertNoDifference(query.makeQuery(), [
-            "bool": [
-                "should": [
-                    [ "match": [ "title": "Hello" ] ],
-                    [ "match": [ "title": "World" ] ],
-                ]
+            "should": [
+                [ "match": [ "title": "Hello" ] ],
+                [ "match": [ "title": "World" ] ],
             ]
         ])
     }
