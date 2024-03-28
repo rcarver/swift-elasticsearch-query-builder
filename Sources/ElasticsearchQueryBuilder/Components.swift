@@ -189,7 +189,7 @@ extension esb {
     }
 
     /// Adds `knn` block to the query syntax.
-    public struct KNearestNeighbor<Component: ArrayComponent>: DictComponent {
+    public struct kNearestNeighbor<Component: ArrayComponent>: DictComponent {
         let field: String
         let vector: [Double]
         let options: QueryDict

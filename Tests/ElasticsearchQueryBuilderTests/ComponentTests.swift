@@ -178,7 +178,7 @@ final class BoolTests: XCTestCase {
 final class KNearestNeighborTests: XCTestCase {
     func testBuildBasic() throws {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
-            esb.KNearestNeighbor("vector_field", [1,2,3])
+            esb.kNearestNeighbor("vector_field", [1,2,3])
         }
         XCTAssertNoDifference(build().makeQuery(), [
             "knn": [
@@ -189,7 +189,7 @@ final class KNearestNeighborTests: XCTestCase {
     }
     func testBuildWithOptionsAndFilter() throws {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
-            esb.KNearestNeighbor("vector_field", [1,2,3]) {
+            esb.kNearestNeighbor("vector_field", [1,2,3]) {
                 [
                     "k": 5,
                     "index": true
