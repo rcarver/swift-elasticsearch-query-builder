@@ -39,7 +39,18 @@ public enum esb {}
 
 extension esb {
 
+    /// The type of a top level query structure.
+    ///
+    /// Used with `@ElasticsearchQueryBuilder`
     public typealias QueryDSL = RootQueryable
+
+    /// The type of an array sub-component of a query.
+    ///
+    /// Used to create a reusable function to fill in the
+    /// body of another component.
+    ///
+    /// Used with `@QueryArrayBuilder`
+    public typealias QueryArray = ArrayComponent
 
     /// An empty component, adding nothing to the query syntax.
     public struct Nothing: DictComponent {

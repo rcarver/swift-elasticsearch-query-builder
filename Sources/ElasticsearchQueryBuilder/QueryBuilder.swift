@@ -35,6 +35,9 @@ public struct QueryDictBuilder {
 @resultBuilder
 public struct QueryArrayBuilder {
 
+    public static func buildPartialBlock<C: ArrayComponent>(first: C) -> AppendDictValues {
+        .init(wrapped: first.makeArray())
+    }
     public static func buildPartialBlock<C: DictComponent>(first: C) -> AppendDictValues {
         .init(wrapped: [first.makeDict()])
     }
@@ -42,6 +45,9 @@ public struct QueryArrayBuilder {
         first
     }
 
+    public static func buildPartialBlock<C: ArrayComponent>(accumulated: AppendDictValues, next: C) -> AppendDictValues {
+        .init(wrapped: accumulated.wrapped + next.makeArray())
+    }
     public static func buildPartialBlock<C: DictComponent>(accumulated: AppendDictValues, next: C) -> AppendDictValues {
         .init(wrapped: accumulated.wrapped + [next.makeDict()])
     }
