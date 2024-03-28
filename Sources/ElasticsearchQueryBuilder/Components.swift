@@ -13,7 +13,7 @@ public protocol ArrayComponent {
 }
 
 extension ArrayComponent {
-    func makeCompactArray() -> [QueryDict] {
+    public func makeCompactArray() -> [QueryDict] {
         var value = self.makeArray()
         value.removeAll(where: \.isEmpty)
         return value
