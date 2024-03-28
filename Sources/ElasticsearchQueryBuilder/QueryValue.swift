@@ -4,6 +4,7 @@ public typealias QueryDict = [ String : QueryValue ]
 
 public enum QueryValue: Equatable {
     case array([QueryValue])
+    case bool(Bool)
     case date(Date, format: QueryDateFormat)
     case dict(QueryDict)
     case float(Float)
@@ -42,6 +43,12 @@ extension QueryValue {
 extension QueryValue: ExpressibleByArrayLiteral {
     public init(arrayLiteral elements: QueryValue...) {
         self = .array(elements)
+    }
+}
+
+extension QueryValue: ExpressibleByBooleanLiteral {
+    public init(booleanLiteral value: Bool) {
+        self = .bool(value)
     }
 }
 

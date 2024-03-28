@@ -6,6 +6,8 @@ extension QueryValue: Encodable {
         switch self {
         case let .array(value):
             try container.encode(value)
+        case let .bool(value):
+            try container.encode(value)
         case let .date(value, format: format):
             switch format {
             case .secondsSince1970:

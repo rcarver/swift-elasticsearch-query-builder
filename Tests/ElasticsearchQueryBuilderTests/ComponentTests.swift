@@ -191,7 +191,8 @@ final class KNearestNeighborTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.KNearestNeighbor("vector_field", [1,2,3]) {
                 [
-                    "k": 5
+                    "k": 5,
+                    "index": true
                 ]
             } filter: {
                 esb.Key("match_bool_prefix") {
@@ -206,6 +207,7 @@ final class KNearestNeighborTests: XCTestCase {
                 "field": "vector_field",
                 "query_vector": [1.0, 2.0, 3.0],
                 "k": 5,
+                "index": true,
                 "filter": [
                     [
                         "match_bool_prefix": [
