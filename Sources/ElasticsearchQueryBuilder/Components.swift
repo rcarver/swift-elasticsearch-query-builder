@@ -30,6 +30,10 @@ public struct RootComponent<Component: DictComponent>: RootQueryable, DictCompon
     }
 }
 
+public struct EmptyArrayComponent: ArrayComponent {
+    public func makeArray() -> [QueryDict] { [] }
+}
+
 /// Namespace for `@ElasticsearchQueryBuilder` components
 public enum esb {}
 
@@ -181,6 +185,45 @@ extension esb {
             } else {
                 return [ "must_not" :  .array(values.map(QueryValue.dict)) ]
             }
+        }
+    }
+
+    /// Adds `knn` block to the query syntax.
+    public struct KNearestNeighbor<Component: ArrayComponent>: DictComponent {
+        let field: String
+        let vector: [Double]
+        let options: QueryDict
+        var filter: Component
+        public init(
+            _ field: String,
+            _ vector: [Double],
+            options: () -> QueryDict = { [:] },
+            @QueryArrayBuilder filter: () -> Component
+        ) {
+            self.field = field
+            self.vector = vector
+            self.options = options()
+            self.filter = filter()
+        }
+        public init(
+            _ field: String,
+            _ vector: [Double],
+            options: () -> QueryDict = { [:] }
+        ) where Component == EmptyArrayComponent {
+            self.field = field
+            self.vector = vector
+            self.options = options()
+            self.filter = EmptyArrayComponent()
+        }
+        public func makeDict() -> QueryDict {
+            var dict: QueryDict = self.options
+            dict["field"] = .string(self.field)
+            dict["query_vector"] = .array(self.vector)
+            let filterValues = self.filter.makeCompactArray()
+            if !filterValues.isEmpty {
+                dict["filter"] = .array(filterValues.map(QueryValue.dict))
+            }
+            return [ "knn" : .dict(dict) ]
         }
     }
 

@@ -175,6 +175,49 @@ final class BoolTests: XCTestCase {
     }
 }
 
+final class KNearestNeighborTests: XCTestCase {
+    func testBuildBasic() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.KNearestNeighbor("vector_field", [1,2,3])
+        }
+        XCTAssertNoDifference(build().makeQuery(), [
+            "knn": [
+                "field": "vector_field",
+                "query_vector": [1.0, 2.0, 3.0],
+            ]
+        ])
+    }
+    func testBuildWithOptionsAndFilter() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.KNearestNeighbor("vector_field", [1,2,3]) {
+                [
+                    "k": 5
+                ]
+            } filter: {
+                esb.Key("match_bool_prefix") {
+                    [
+                        "message": "quick brown f"
+                    ]
+                }
+            }
+        }
+        XCTAssertNoDifference(build().makeQuery(), [
+            "knn": [
+                "field": "vector_field",
+                "query_vector": [1.0, 2.0, 3.0],
+                "k": 5,
+                "filter": [
+                    [
+                        "match_bool_prefix": [
+                            "message": "quick brown f"
+                        ]
+                    ]
+                ]
+            ]
+        ])
+    }
+}
+
 final class FunctionScoreTests: XCTestCase {
     func testBuild() throws {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
