@@ -43,6 +43,87 @@ final class KeyTests: XCTestCase {
     }
 }
 
+final class ComposableBuilderTests: XCTestCase {
+    func testBuildDict() throws {
+        @QueryDictBuilder func makeKey() -> some DictComponent {
+            esb.Key("match_bool_prefix") {
+                [
+                    "message": "quick brown f"
+                ]
+            }
+        }
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Query {
+                makeKey()
+            }
+        }
+        XCTAssertNoDifference(build().makeQuery(), [
+            "query": [
+                "match_bool_prefix": [
+                    "message": "quick brown f"
+                ]
+            ]
+        ])
+    }
+    func testBuildArray() throws {
+        @QueryArrayBuilder func makeKey(_ isEnabled: Bool) -> some esb.QueryArray {
+            if isEnabled {
+                esb.Key("match_bool_prefix") {
+                    [
+                        "message": "quick brown f"
+                    ]
+                }
+            }
+        }
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Filter {
+                makeKey(true)
+            }
+        }
+        XCTAssertNoDifference(build().makeQuery(), [
+            "filter": [
+                [
+                    "match_bool_prefix": [
+                        "message": "quick brown f"
+                    ]
+                ]
+            ]
+        ])
+    }
+    func testBuildArray2() throws {
+        @QueryArrayBuilder func makeKey(_ isEnabled: Bool, _ c: Int) -> esb.QueryArray {
+            if isEnabled {
+                esb.Key("match_bool_prefix") {
+                    [
+                        "message": .string("quick brown \(c)")
+                    ]
+                }
+            }
+        }
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Filter {
+                makeKey(true, 1)
+                makeKey(false, 2)
+                makeKey(true, 3)
+            }
+        }
+        XCTAssertNoDifference(build().makeQuery(), [
+            "filter": [
+                [
+                    "match_bool_prefix": [
+                        "message": "quick brown 1"
+                    ]
+                ],
+                [
+                    "match_bool_prefix": [
+                        "message": "quick brown 3"
+                    ]
+                ]
+            ]
+        ])
+    }
+}
+
 final class QueryTests: XCTestCase {
     func testBuild() throws {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
