@@ -199,6 +199,82 @@ extension esb {
         }
     }
 
+    /// Adds `term` block to the query syntax.
+    ///
+    /// Excludes the component if value is nil.
+    public struct Term: DictComponent {
+        let field: String
+        let value: String?
+        public init(_ field: String, _ value: String?) {
+            self.field = field
+            self.value = value
+        }
+        public init<V: RawRepresentable>(_ field: String, _ value: V?) where V.RawValue == String {
+            self.field = field
+            self.value = value?.rawValue
+        }
+        public init<V: CustomStringConvertible>(_ field: String, describing value: V?) {
+            self.field = field
+            self.value = value?.description
+        }
+        public func makeDict() -> QueryDict {
+            guard let value = self.value else { return [:] }
+            return [ "term" :  [ self.field : .string(value) ] ]
+        }
+    }
+
+    /// Adds multiple `term` block to the query syntax.
+    ///
+    /// Excludes the component if values is empty.
+    public struct TermsAND: ArrayComponent {
+        let field: String
+        let values: [String]
+        public init(_ field: String, _ values: [String]) {
+            self.field = field
+            self.values = values
+        }
+        public init<V>(_ field: String, _ values: [V]) where V: RawRepresentable, V.RawValue == String {
+            self.field = field
+            self.values = values.map(\.rawValue)
+        }
+        public init<V>(_ field: String, describing values: [V]) where V: CustomStringConvertible {
+            self.field = field
+            self.values = values.map(\.description)
+        }
+        public func makeArray() -> [QueryDict] {
+            return self.values.map {
+                [ "term" :  [ self.field : .string($0) ] ]
+            }
+        }
+    }
+
+    /// Adds a `terms` block to the query syntax.
+    ///
+    /// Excludes the component if values is empty.
+    public struct TermsOR: DictComponent {
+        let field: String
+        let values: [String]
+        public init(_ field: String, _ values: [String]) {
+            self.field = field
+            self.values = values
+        }
+        public init<V>(_ field: String, _ values: [V]) where V: RawRepresentable, V.RawValue == String {
+            self.field = field
+            self.values = values.map(\.rawValue)
+        }
+        public init<V>(_ field: String, describing values: [V]) where V: CustomStringConvertible {
+            self.field = field
+            self.values = values.map(\.description)
+        }
+        public func makeDict() -> QueryDict {
+            if self.values.isEmpty {
+                return [:]
+            } else {
+                return [ "terms" :  [ self.field : .array(self.values) ] ]
+            }
+        }
+    }
+
     /// Adds `knn` block to the query syntax.
     public struct kNearestNeighbor<Component: ArrayComponent>: DictComponent {
         let field: String

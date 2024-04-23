@@ -256,6 +256,64 @@ final class BoolTests: XCTestCase {
     }
 }
 
+final class TermTests: XCTestCase {
+    func testBuild() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Term("name", "joe")
+        }
+        XCTAssertNoDifference(build().makeQuery(), [
+            "term": [ "name": "joe" ]
+        ])
+    }
+    func testBuildEmpty() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Term("name", nil)
+        }
+        XCTAssertNoDifference(build().makeQuery(), [:])
+    }
+}
+
+final class TermsORTests: XCTestCase {
+    func testBuild() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.TermsOR("name", ["joe", "mary"])
+        }
+        XCTAssertNoDifference(build().makeQuery(), [
+            "terms": [ "name": ["joe", "mary"] ]
+        ])
+    }
+    func testBuildEmpty() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.TermsOR("name", [])
+        }
+        XCTAssertNoDifference(build().makeQuery(), [:])
+    }
+}
+
+final class TermsANDTests: XCTestCase {
+    func testBuild() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Filter {
+                esb.TermsAND("name", ["joe", "mary"])
+            }
+        }
+        XCTAssertNoDifference(build().makeQuery(), [
+            "filter": [
+                [ "term": [ "name": "joe" ] ],
+                [ "term": [ "name": "mary" ] ],
+            ]
+        ])
+    }
+    func testBuildEmpty() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Filter {
+                esb.TermsAND("name", [])
+            }
+        }
+        XCTAssertNoDifference(build().makeQuery(), [:])
+    }
+}
+
 final class KNearestNeighborTests: XCTestCase {
     func testBuildBasic() throws {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
