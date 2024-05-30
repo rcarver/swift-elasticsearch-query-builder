@@ -19,7 +19,10 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "ElasticsearchQueryBuilder"
+            name: "ElasticsearchQueryBuilder",
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
+            ]
         ),
         .testTarget(
             name: "ElasticsearchQueryBuilderTests",

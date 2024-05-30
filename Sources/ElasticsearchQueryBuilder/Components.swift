@@ -406,7 +406,7 @@ extension esb {
     }
 }
 
-public struct BoostModeType: RawRepresentable, Equatable {
+public struct BoostModeType: RawRepresentable, Equatable, Sendable {
     public var rawValue: String
     public init(rawValue: String) {
         self.rawValue = rawValue
@@ -419,7 +419,7 @@ public struct BoostModeType: RawRepresentable, Equatable {
     public static let min = Self(rawValue: "min")
 }
 
-public struct ScoreModeType: RawRepresentable, Equatable {
+public struct ScoreModeType: RawRepresentable, Equatable, Sendable {
     public var rawValue: String
     public init(rawValue: String) {
         self.rawValue = rawValue
