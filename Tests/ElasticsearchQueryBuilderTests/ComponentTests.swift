@@ -8,7 +8,7 @@ final class NothingTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Nothing()
         }
-        XCTAssertNoDifference(build().makeQuery(), [:])
+        expectNoDifference(build().makeQuery(), [:])
     }
 }
 
@@ -17,7 +17,7 @@ final class KeyTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Key("boost", .float(1.2))
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "boost": 1.2
         ])
     }
@@ -29,7 +29,7 @@ final class KeyTests: XCTestCase {
                 ]
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "match_bool_prefix": [
                 "message": "quick brown f"
             ]
@@ -39,7 +39,7 @@ final class KeyTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Key("match", .dict([:]))
         }
-        XCTAssertNoDifference(build().makeQuery(), [:])
+        expectNoDifference(build().makeQuery(), [:])
     }
 }
 
@@ -57,7 +57,7 @@ final class ComposableBuilderTests: XCTestCase {
                 makeKey()
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "query": [
                 "match_bool_prefix": [
                     "message": "quick brown f"
@@ -80,7 +80,7 @@ final class ComposableBuilderTests: XCTestCase {
                 makeKey(true)
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "filter": [
                 [
                     "match_bool_prefix": [
@@ -107,7 +107,7 @@ final class ComposableBuilderTests: XCTestCase {
                 makeKey(true, 3)
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "filter": [
                 [
                     "match_bool_prefix": [
@@ -135,7 +135,7 @@ final class QueryTests: XCTestCase {
                 }
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "query": [
                 "match_bool_prefix": [
                     "message": "quick brown f"
@@ -149,7 +149,7 @@ final class QueryTests: XCTestCase {
                 esb.Key("match", .dict([:]))
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [:])
+        expectNoDifference(build().makeQuery(), [:])
     }
 }
 
@@ -196,7 +196,7 @@ final class BoolTests: XCTestCase {
                 }
             }
         }
-        XCTAssertNoDifference(build(true).makeQuery(), [
+        expectNoDifference(build(true).makeQuery(), [
             "bool": [
                 "minimum_should_match": 1,
                 "should": [
@@ -229,7 +229,7 @@ final class BoolTests: XCTestCase {
                 ]
             ]
         ])
-        XCTAssertNoDifference(build(false).makeQuery(), [
+        expectNoDifference(build(false).makeQuery(), [
             "bool": [
                 "minimum_should_match": 1
             ]
@@ -252,7 +252,44 @@ final class BoolTests: XCTestCase {
                 }
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [:])
+        expectNoDifference(build().makeQuery(), [:])
+    }
+}
+
+final class SortTests: XCTestCase {
+    func testBuild() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Sort {
+                esb.Key("_score") {
+                    [ "order": "desc" ]
+                }
+                esb.Key("name") {
+                    [ "order": "asc" ]
+                }
+            }
+        }
+        expectNoDifference(build().makeQuery(), [
+            "sort": [
+                [
+                    "_score": [ "order": "desc" ]
+                ],
+                [
+                    "name": [ "order": "asc" ]
+                ]
+            ]
+        ])
+    }
+    func testBuildEmpty() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Sort {
+                if false {
+                    esb.Key("_score") {
+                        [ "order": "desc" ]
+                    }
+                }
+            }
+        }
+        expectNoDifference(build().makeQuery(), [:])
     }
 }
 
@@ -261,7 +298,7 @@ final class TermTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Term("name", "joe")
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "term": [ "name": "joe" ]
         ])
     }
@@ -269,7 +306,7 @@ final class TermTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Term("name", nil)
         }
-        XCTAssertNoDifference(build().makeQuery(), [:])
+        expectNoDifference(build().makeQuery(), [:])
     }
 }
 
@@ -278,7 +315,7 @@ final class TermsORTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.TermsOR("name", ["joe", "mary"])
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "terms": [ "name": ["joe", "mary"] ]
         ])
     }
@@ -286,7 +323,7 @@ final class TermsORTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.TermsOR("name", [])
         }
-        XCTAssertNoDifference(build().makeQuery(), [:])
+        expectNoDifference(build().makeQuery(), [:])
     }
 }
 
@@ -297,7 +334,7 @@ final class TermsANDTests: XCTestCase {
                 esb.TermsAND("name", ["joe", "mary"])
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "filter": [
                 [ "term": [ "name": "joe" ] ],
                 [ "term": [ "name": "mary" ] ],
@@ -310,7 +347,7 @@ final class TermsANDTests: XCTestCase {
                 esb.TermsAND("name", [])
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [:])
+        expectNoDifference(build().makeQuery(), [:])
     }
 }
 
@@ -319,7 +356,7 @@ final class KNearestNeighborTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.kNearestNeighbor("vector_field", [1,2,3])
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "knn": [
                 "field": "vector_field",
                 "query_vector": [1.0, 2.0, 3.0],
@@ -341,7 +378,7 @@ final class KNearestNeighborTests: XCTestCase {
                 }
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "knn": [
                 "field": "vector_field",
                 "query_vector": [1.0, 2.0, 3.0],
@@ -385,7 +422,7 @@ final class FunctionScoreTests: XCTestCase {
                 }
             }
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "function_score": [
                 "bool": [
                     "should": [
@@ -415,13 +452,13 @@ final class SearchPaginationTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Pagination()
         }
-        XCTAssertNoDifference(build().makeQuery(), [:])
+        expectNoDifference(build().makeQuery(), [:])
     }
     func testBuildFirst() throws {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Pagination(from: 10)
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "from": 10
         ])
     }
@@ -429,7 +466,7 @@ final class SearchPaginationTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Pagination(from: 10, size: 20)
         }
-        XCTAssertNoDifference(build().makeQuery(), [
+        expectNoDifference(build().makeQuery(), [
             "from": 10,
             "size": 20,
         ])
