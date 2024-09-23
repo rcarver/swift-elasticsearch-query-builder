@@ -256,6 +256,43 @@ final class BoolTests: XCTestCase {
     }
 }
 
+final class SortTests: XCTestCase {
+    func testBuild() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Sort {
+                esb.Key("_score") {
+                    [ "order": "desc" ]
+                }
+                esb.Key("name") {
+                    [ "order": "asc" ]
+                }
+            }
+        }
+        XCTAssertNoDifference(build().makeQuery(), [
+            "sort": [
+                [
+                    "_score": [ "order": "desc" ]
+                ],
+                [
+                    "name": [ "order": "asc" ]
+                ]
+            ]
+        ])
+    }
+    func testBuildEmpty() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Sort {
+                if false {
+                    esb.Key("_score") {
+                        [ "order": "desc" ]
+                    }
+                }
+            }
+        }
+        XCTAssertNoDifference(build().makeQuery(), [:])
+    }
+}
+
 final class TermTests: XCTestCase {
     func testBuild() throws {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {

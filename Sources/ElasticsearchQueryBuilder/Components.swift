@@ -199,6 +199,22 @@ extension esb {
         }
     }
 
+    /// Adds `sort` block to the query syntax.
+    public struct Sort<Component: ArrayComponent>: DictComponent {
+        var component: Component
+        public init(@QueryArrayBuilder component: () -> Component) {
+            self.component = component()
+        }
+        public func makeDict() -> QueryDict {
+            let values: [QueryDict] = self.component.makeCompactArray()
+            if values.isEmpty {
+                return [:]
+            } else {
+                return [ "sort" :  .array(values.map(QueryValue.dict)) ]
+            }
+        }
+    }
+
     /// Adds `term` block to the query syntax.
     ///
     /// Excludes the component if value is nil.
