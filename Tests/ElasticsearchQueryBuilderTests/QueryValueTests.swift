@@ -6,26 +6,26 @@ import XCTest
 final class QueryValueTests: XCTestCase {
 
     func test_array() {
-        XCTAssertNoDifference(
+        expectNoDifference(
             QueryValue.array([Float(0.1), 0.2]),
             QueryValue.array([.float(0.1), .float(0.2)])
         )
-        XCTAssertNoDifference(
+        expectNoDifference(
             QueryValue.array([Double(0.1), 0.2]),
             QueryValue.array([.float(0.1), .float(0.2)])
         )
-        XCTAssertNoDifference(
+        expectNoDifference(
             QueryValue.array([1, 2]),
             QueryValue.array([.int(1), .int(2)])
         )
-        XCTAssertNoDifference(
+        expectNoDifference(
             QueryValue.array(["a", "b"]),
             QueryValue.array([.string("a"), .string("b")])
         )
         struct Custom: CustomStringConvertible {
             var description: String
         }
-        XCTAssertNoDifference(
+        expectNoDifference(
             QueryValue.array(describing: [Custom(description: "a"), Custom(description: "b")]),
             QueryValue.array([.string("a"), .string("b")])
         )
@@ -35,7 +35,7 @@ final class QueryValueTests: XCTestCase {
         struct Custom: CustomStringConvertible {
             var description: String
         }
-        XCTAssertNoDifference(
+        expectNoDifference(
             QueryValue.string(describing: Custom(description: "a")),
             QueryValue.string("a")
         )
