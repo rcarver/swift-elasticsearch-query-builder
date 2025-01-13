@@ -8,27 +8,31 @@ final class EncodingTests: XCTestCase {
     func assertFormattedDate(
         _ value: QueryValue,
         _ want: String,
-        file: StaticString = #file,
-        line: UInt = #line
+        fileID: StaticString = #fileID,
+        filePath: StaticString = #filePath,
+        line: UInt = #line,
+        column: UInt = #column
     ) throws {
         let encoder = JSONEncoder()
         let got = try encoder.encode(value)
-        let gotString = try XCTUnwrap(String(data: got, encoding: .utf8), file: file, line: line)
-        XCTAssertNoDifference(gotString, want, file: file, line: line)
+        let gotString = try XCTUnwrap(String(data: got, encoding: .utf8), file: filePath, line: line)
+        expectNoDifference(gotString, want, fileID: fileID, filePath: filePath, line: line, column: column)
     }
 
     func assertFormattedDate(
         _ value: Date,
         dateEncodingStrategy: JSONEncoder.DateEncodingStrategy,
         _ want: String,
-        file: StaticString = #file,
-        line: UInt = #line
+        fileID: StaticString = #fileID,
+        filePath: StaticString = #filePath,
+        line: UInt = #line,
+        column: UInt = #column
     ) throws {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = dateEncodingStrategy
         let got = try encoder.encode(value)
-        let gotString = try XCTUnwrap(String(data: got, encoding: .utf8), file: file, line: line)
-        XCTAssertNoDifference(gotString, want, file: file, line: line)
+        let gotString = try XCTUnwrap(String(data: got, encoding: .utf8), file: filePath, line: line)
+        expectNoDifference(gotString, want, fileID: fileID, filePath: filePath, line: line, column: column)
     }
 
     let date = Date(timeIntervalSince1970: 1001.12345)
