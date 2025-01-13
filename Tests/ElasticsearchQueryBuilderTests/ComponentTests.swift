@@ -43,6 +43,35 @@ final class KeyTests: XCTestCase {
     }
 }
 
+final class DictTests: XCTestCase {
+    func testBuildDict() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Dict("query") {
+                esb.Key("match_bool_prefix") {
+                    [
+                        "message": "quick brown f"
+                    ]
+                }
+            }
+        }
+        expectNoDifference(build().makeQuery(), [
+            "query": [
+                "match_bool_prefix": [
+                    "message": "quick brown f"
+                ]
+            ]
+        ])
+    }
+    func testBuildDictEmpty() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Dict("query") {
+                esb.Key("match", .dict([:]))
+            }
+        }
+        expectNoDifference(build().makeQuery(), [:])
+    }
+}
+
 final class ComposableBuilderTests: XCTestCase {
     func testBuildDict() throws {
         @QueryDictBuilder func makeKey() -> some DictComponent {
@@ -147,6 +176,31 @@ final class QueryTests: XCTestCase {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Query {
                 esb.Key("match", .dict([:]))
+            }
+        }
+        expectNoDifference(build().makeQuery(), [:])
+    }
+}
+
+final class AggsTests: XCTestCase {
+    func testBuild() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Aggs {
+                esb.Agg("name", field: "name")
+            }
+        }
+        expectNoDifference(build().makeQuery(), [
+            "aggs": [
+                "name": [
+                    "terms": [ "field": "name" ]
+                ]
+            ]
+        ])
+    }
+    func testBuildEmpty() throws {
+        @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
+            esb.Aggs {
+                esb.Key("name", .dict([:]))
             }
         }
         expectNoDifference(build().makeQuery(), [:])

@@ -60,22 +60,6 @@ extension esb {
         }
     }
 
-    /// Adds `query` block to the query syntax.
-    public struct Query<Component: DictComponent>: DictComponent {
-        var component: Component
-        public init(@QueryDictBuilder component: () -> Component) {
-            self.component = component()
-        }
-        public func makeDict() -> QueryDict {
-            let dict = self.component.makeDict()
-            if dict.isEmpty {
-                return [:]
-            } else {
-                return [ "query" : .dict(self.component.makeDict()) ]
-            }
-        }
-    }
-
     /// Adds a `key` with any type of value to the query syntax.
     public struct Key: DictComponent {
         var key: String
@@ -105,6 +89,73 @@ extension esb {
             default:
                 return [ self.key : self.value ]
             }
+        }
+    }
+
+    /// Adds a block to the syntax.
+    public struct Dict<Component: DictComponent>: DictComponent {
+        var key: String
+        var component: Component
+        public init(_ key: String, @QueryDictBuilder component: () -> Component) {
+            self.key = key
+            self.component = component()
+        }
+        public func makeDict() -> QueryDict {
+            let dict = self.component.makeDict()
+            if dict.isEmpty {
+                return [:]
+            } else {
+                return [ key : .dict(self.component.makeDict()) ]
+            }
+        }
+    }
+
+    /// Adds a `query` block to the syntax.
+    public struct Query<Component: DictComponent>: DictComponent {
+        var component: Component
+        public init(@QueryDictBuilder component: () -> Component) {
+            self.component = component()
+        }
+        public func makeDict() -> QueryDict {
+            let dict = self.component.makeDict()
+            if dict.isEmpty {
+                return [:]
+            } else {
+                return [ "query" : .dict(self.component.makeDict()) ]
+            }
+        }
+    }
+
+    /// Adds an `aggs` block to the syntax.
+    public struct Aggs<Component: DictComponent>: DictComponent {
+        var component: Component
+        public init(@QueryDictBuilder component: () -> Component) {
+            self.component = component()
+        }
+        public func makeDict() -> QueryDict {
+            let dict = self.component.makeDict()
+            if dict.isEmpty {
+                return [:]
+            } else {
+                return [ "aggs" : .dict(self.component.makeDict()) ]
+            }
+        }
+    }
+
+    /// Defines and named aggregate within `Aggs`
+    public struct Agg: DictComponent {
+        var name: String
+        var term: QueryDict
+        public init(_ name: String, field: String) {
+            self.name = name
+            self.term = [ "field" : .string(field) ]
+        }
+        public init(_ name: String, term: QueryDict) {
+            self.name = name
+            self.term = term
+        }
+        public func makeDict() -> QueryDict {
+            return [ self.name : [ "terms" : .dict(self.term) ] ]
         }
     }
 
