@@ -146,9 +146,13 @@ extension esb {
     public struct Agg: DictComponent {
         var name: String
         var term: QueryDict
-        public init(_ name: String, field: String) {
+        public init(_ name: String, field: String, size: Int? = nil) {
             self.name = name
-            self.term = [ "field" : .string(field) ]
+            if let size {
+                self.term = [ "field" : .string(field), "size": .int(size) ]
+            } else {
+                self.term = [ "field" : .string(field) ]
+            }
         }
         public init(_ name: String, term: QueryDict) {
             self.name = name

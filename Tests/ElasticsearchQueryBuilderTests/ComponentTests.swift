@@ -186,13 +186,17 @@ final class AggsTests: XCTestCase {
     func testBuild() throws {
         @ElasticsearchQueryBuilder func build() -> some esb.QueryDSL {
             esb.Aggs {
-                esb.Agg("name", field: "name")
+                esb.Agg("names", field: "name")
+                esb.Agg("ages", field: "age", size: 100)
             }
         }
         expectNoDifference(build().makeQuery(), [
             "aggs": [
-                "name": [
+                "names": [
                     "terms": [ "field": "name" ]
+                ],
+                "ages": [
+                    "terms": [ "field": "age", "size": 100 ]
                 ]
             ]
         ])
